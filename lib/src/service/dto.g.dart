@@ -60,6 +60,22 @@ Map<String, dynamic> _$DocsTextDtoToJson(DocsTextDto instance) =>
       'separator': instance.separator,
     };
 
+CreateDocsTextDto _$CreateDocsDtoFromJson(Map<String, dynamic> json) =>
+    CreateDocsTextDto(
+      docsName: json['docsName'] as String,
+      text: json['text'] as String,
+      separator: json['separator'] as String,
+      metadata: json['metadata'] as Map<String, dynamic>? ?? const {},
+    );
+
+Map<String, dynamic> _$CreateDocsDtoToJson(CreateDocsTextDto instance) =>
+    <String, dynamic>{
+      'docsName': instance.docsName,
+      'text': instance.text,
+      'separator': instance.separator,
+      'metadata': instance.metadata,
+    };
+
 SegmentIdDto _$SegmentIdDtoFromJson(Map<String, dynamic> json) => SegmentIdDto(
       id: json['id'] as String,
     );

@@ -10,17 +10,17 @@ class EmbeddingsService {
   Future<void> init() async => await _vdb.connect();
   Future<void> dispose() async => await _vdb.disconnect();
 
-  Future<DocsInfoDto> createDocsByText(DocsTextDto docsTextDto, {Map<String, dynamic> metadata = const {}}) async {
-    List<String> segmentList = docsTextDto.text.split(docsTextDto.separator);
+  Future<DocsInfoDto> createDocsByText(CreateDocsTextDto createDocsTextDto) async {
+    List<String> segmentList = createDocsTextDto.text.split(createDocsTextDto.separator);
     List<SegmentDto> segmentDtoList = [];
     for(String segmentString in segmentList) {
       segmentString = segmentString.trim();
       if(segmentString.isNotEmpty) {
-        SegmentDto segmentDto = SegmentDto(text: segmentString, metadata: metadata);
+        SegmentDto segmentDto = SegmentDto(text: segmentString, metadata: createDocsTextDto.metadata);
         segmentDtoList.add(segmentDto);
       }
     }
-    DocumentDto documentDto = DocumentDto(docsName: docsTextDto.docsName, segmentList: segmentDtoList);
+    DocumentDto documentDto = DocumentDto(docsName: createDocsTextDto.docsName, segmentList: segmentDtoList);
     return await createDocs(documentDto);
   }
 

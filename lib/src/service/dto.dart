@@ -73,6 +73,18 @@ class DocsTextDto extends DocsNameDto{
 }
 
 @JsonSerializable()
+class CreateDocsTextDto extends DocsTextDto{
+  Map<String, dynamic> metadata;
+
+  CreateDocsTextDto({required super.docsName, required super.text, required super.separator, this.metadata = const {}});
+
+  factory CreateDocsTextDto.fromJson(Map<String, dynamic> json) => _$CreateDocsDtoFromJson(json);
+
+  @override
+  Map<String, dynamic> toJson() => _$CreateDocsDtoToJson(this);
+}
+
+@JsonSerializable()
 class SegmentIdDto {
   String id;
 
