@@ -45,6 +45,11 @@ class EmbeddingsService {
     return collectionInfoList.map((collectionInfo)=> DocsInfoDto(docsId: collectionInfo.name, docsName: collectionInfo.docsName)).toList();
   }
 
+  Future<DocsInfoDto> renameDocs(DocsInfoDto docsInfoDto) async {
+    CollectionInfo collectionInfo = await _vdb.renameCollection(docsInfoDto.docsId, docsInfoDto.docsName);
+    return DocsInfoDto.fromModel(collectionInfo);
+  }
+
   Future<DocumentInfoDto?> listSegments(DocsIdDto docsIdDto) async {
     CollectionResult? collectionResult = await _vdb.listSegments(docsIdDto.docsId);
     if(collectionResult == null) return null;

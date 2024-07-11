@@ -7,6 +7,7 @@ abstract class VectorDatabase {
   Future<CollectionInfo> createCollection(String docsName, List<Segment> segmentList);
   Future<void> deleteCollection(String collectionName);
   Future<List<CollectionInfo>> listCollections();
+  Future<CollectionInfo> renameCollection(String collectionName, String docsName);
 
   Future<CollectionResult?> listSegments(String collectionName);
   Future<String> insertSegment(String collectionName, Segment segment, int? index);

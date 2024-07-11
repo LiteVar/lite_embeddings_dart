@@ -51,6 +51,10 @@ Future<void> main() async {
   // DeleteSegmentDto deleteSegmentDto = DeleteSegmentDto(docsId: docsId, id: segmentId);
   // await embeddingsService.deleteSegment(deleteSegmentDto);
 
+  /// Rename Docs
+  // DocsInfoDto docsInfoDto = DocsInfoDto(docsId: docsId, docsName: newDocsName);
+  // DocsInfoDto docsInfoDtoResult = await embeddingsService.renameDocs(docsInfoDto);
+
   /// Delete Docs
   // DocsIdDto docsIdDto = DocsIdDto(docsId: docsId);
   // await embeddingsService.deleteDocs(docsIdDto);
