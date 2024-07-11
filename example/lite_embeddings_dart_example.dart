@@ -21,8 +21,8 @@ Future<void> main() async {
   print("docsNameDtoList: ${jsonEncode(docsInfoDtoList)}");
 
   /// Create New Docs
-  // DocsTextDto docsTextDto = DocsTextDto(docsName: fileName, text: fileText, separator: separator);
-  // DocsInfoDto docsInfoDto = await embeddingsService.createDocsByText(docsTextDto, metadata: {"vdb": "chroma", "embeddings_model": embeddingsModel});
+  // CreateDocsTextDto createDocsTextDto = CreateDocsTextDto(docsName: fileName, text: fileText, separator: separator, metadata: {"vdb": "chroma", "embeddings_model": embeddingsModel});
+  // DocsInfoDto docsInfoDto = await embeddingsService.createDocsByText(createDocsTextDto);
   // print("docsInfoDto: ${docsInfoDto.toJson()}");
 
   /// List Segments
