@@ -59,17 +59,19 @@ class EmbeddingsService {
     return documentInfoDto;
   }
 
-  Future<String> insertSegment(InsertSegmentDto insertSegmentDto) async {
+  Future<SegmentIdDto> insertSegment(InsertSegmentDto insertSegmentDto) async {
     String segmentId = await _vdb.insertSegment(insertSegmentDto.docsId, insertSegmentDto.segment.toModel(), insertSegmentDto.index);
-    return segmentId;
+    return SegmentIdDto(id: segmentId);
   }
 
-  Future<void> updateSegment(UpdateSegmentDto updateSegmentDto) async {
+  Future<SegmentIdDto> updateSegment(UpdateSegmentDto updateSegmentDto) async {
     await _vdb.updateSegment(updateSegmentDto.docsId, updateSegmentDto.segment.toModel());
+    return SegmentIdDto(id: updateSegmentDto.segment.id);
   }
 
-  Future<void> deleteSegment(DeleteSegmentDto deleteSegmentDto) async {
+  Future<SegmentIdDto> deleteSegment(DeleteSegmentDto deleteSegmentDto) async {
     await _vdb.deleteSegment(deleteSegmentDto.docsId, deleteSegmentDto.id);
+    return SegmentIdDto(id: deleteSegmentDto.id);
   }
 
   Future<QueryResultDto> query(QueryDto queryDto) async {
