@@ -9,3 +9,4 @@ example/chroma/
 pubspec.lock
 lite_embeddings_dart.iml
 example/.env
+.DS_Store
