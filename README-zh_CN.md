@@ -1,36 +1,36 @@
 # Lite Embeddings for Dart
 
-English · [中文](README-zh_CN.md)
+[English](README.md) · 中文
 
-LLM Embedding tool for Dart
+大模型嵌入工具服务
 
-- Support Vector Database: Chroma
-- Support file type：pure text, include `Markdown`、`TXT`
+- 支持的向量数据库: Chroma
+- 支持的类型：纯文本，包括`Markdown`、`TXT`
 
-## Usage
+## 使用
 
-### Prepare
+### 准备
 
-1. Docs file, according to `/example/docs/*.md`
-2. `Separator` in the file
-    - If `markdown` file, recommend to use `<!--SEPARATOR-->` as separator, for NOT show it in `markdown` after rendering
-3. Add `.env` file in the `example` folder, and add below content in the `.env` file：
+1. 准备文本文档，可参照 `/example/docs/*.md` 作为样例
+2. 文档内具备`分隔符`
+    - 如果是`markdown`文档，推荐采用`<!--分隔符-->`作为分隔符，不影响`markdown`渲染后的展示效果
+3. 如果需要运行example，在 `example` 文件夹增加 `.env` 文件，并且`.env`文件需要增加如下内容：
      ```properties
-     baseUrl = https://xxx.xxx.com         # LLM API BaseURL
-     apiKey = sk-xxxxxxxxxxxxxxxxxxxx      # LLM API ApiKey
+     baseUrl = https://xxx.xxx.com         # 大模型接口的BaseURL
+     apiKey = sk-xxxxxxxxxxxxxxxxxxxx      # 大模型接口的ApiKey
      ```
-4. Use below method to run embeddings service.
+4. 使用下方的方法运行Embeddings服务
 
-### EmbeddingsService
--  According to `/example/lite_embeddings_dart_example.dart`
+### 使用EmbeddingsService
+- 例子：`/example/lite_embeddings_dart_example.dart`
 
 ```dart
 Future<void> main() async {
   embeddingsService.init();
 
-  String fileName = "Moore's Law for Everything.md";
+  String fileName = "摩尔定律适用于一切.md";
   String fileText = await _buildDocsText(fileName);
-  String separator = "<!--SEPARATOR-->";
+  String separator = "<!--分隔符-->";
 
   print("fileName: $fileName, fileTextSize: ${fileText.length}, separator: $separator");
 
@@ -50,7 +50,7 @@ Future<void> main() async {
   print("documentInfoDto: ${jsonEncode(documentInfoDto?.toJson())}");
 
   /// Query
-  String questText = "Who is author?";
+  String questText = "作者意识到什么？";
   QueryDto queryDto = QueryDto(docsId: docsId, queryText: questText, nResults: 3);
   QueryResultDto queryResultDto = await embeddingsService.query(queryDto);
   print("queryResultDto: ${jsonEncode(queryResultDto)}");
