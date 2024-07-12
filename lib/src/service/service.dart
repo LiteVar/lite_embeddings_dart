@@ -54,24 +54,24 @@ class EmbeddingsService {
     CollectionResult? collectionResult = await _vdb.listSegments(docsIdDto.docsId);
     if(collectionResult == null) return null;
 
-    List<SegmentInfoDto> segmentInfoDtoList = collectionResult.segmentList.map((segmentInfo)=> SegmentInfoDto(id: segmentInfo.id, text: segmentInfo.text, metadata: segmentInfo.metadata)).toList();
+    List<SegmentInfoDto> segmentInfoDtoList = collectionResult.segmentList.map((segmentInfo)=> SegmentInfoDto(segmentId: segmentInfo.id, text: segmentInfo.text, metadata: segmentInfo.metadata)).toList();
     DocumentInfoDto documentInfoDto = DocumentInfoDto(docsId: collectionResult.name,docsName: collectionResult.docsName, segmentInfoList: segmentInfoDtoList);
     return documentInfoDto;
   }
 
   Future<SegmentIdDto> insertSegment(InsertSegmentDto insertSegmentDto) async {
     String segmentId = await _vdb.insertSegment(insertSegmentDto.docsId, insertSegmentDto.segment.toModel(), insertSegmentDto.index);
-    return SegmentIdDto(id: segmentId);
+    return SegmentIdDto(segmentId: segmentId);
   }
 
   Future<SegmentIdDto> updateSegment(UpdateSegmentDto updateSegmentDto) async {
     await _vdb.updateSegment(updateSegmentDto.docsId, updateSegmentDto.segment.toModel());
-    return SegmentIdDto(id: updateSegmentDto.segment.id);
+    return SegmentIdDto(segmentId: updateSegmentDto.segment.segmentId);
   }
 
   Future<SegmentIdDto> deleteSegment(DeleteSegmentDto deleteSegmentDto) async {
-    await _vdb.deleteSegment(deleteSegmentDto.docsId, deleteSegmentDto.id);
-    return SegmentIdDto(id: deleteSegmentDto.id);
+    await _vdb.deleteSegment(deleteSegmentDto.docsId, deleteSegmentDto.segmentId);
+    return SegmentIdDto(segmentId: deleteSegmentDto.segmentId);
   }
 
   Future<QueryResultDto> query(QueryDto queryDto) async {

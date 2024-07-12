@@ -27,15 +27,6 @@ Map<String, dynamic> _$DocsIdDtoToJson(DocsIdDto instance) => <String, dynamic>{
       'docsId': instance.docsId,
     };
 
-DocsNameDto _$DocsNameDtoFromJson(Map<String, dynamic> json) => DocsNameDto(
-      docsName: json['docsName'] as String,
-    );
-
-Map<String, dynamic> _$DocsNameDtoToJson(DocsNameDto instance) =>
-    <String, dynamic>{
-      'docsName': instance.docsName,
-    };
-
 DocsInfoDto _$DocsInfoDtoFromJson(Map<String, dynamic> json) => DocsInfoDto(
       docsId: json['docsId'] as String,
       docsName: json['docsName'] as String,
@@ -45,19 +36,6 @@ Map<String, dynamic> _$DocsInfoDtoToJson(DocsInfoDto instance) =>
     <String, dynamic>{
       'docsId': instance.docsId,
       'docsName': instance.docsName,
-    };
-
-DocsTextDto _$DocsTextDtoFromJson(Map<String, dynamic> json) => DocsTextDto(
-      docsName: json['docsName'] as String,
-      text: json['text'] as String,
-      separator: json['separator'] as String,
-    );
-
-Map<String, dynamic> _$DocsTextDtoToJson(DocsTextDto instance) =>
-    <String, dynamic>{
-      'docsName': instance.docsName,
-      'text': instance.text,
-      'separator': instance.separator,
     };
 
 CreateDocsTextDto _$CreateDocsTextDtoFromJson(Map<String, dynamic> json) =>
@@ -77,12 +55,12 @@ Map<String, dynamic> _$CreateDocsTextDtoToJson(CreateDocsTextDto instance) =>
     };
 
 SegmentIdDto _$SegmentIdDtoFromJson(Map<String, dynamic> json) => SegmentIdDto(
-      id: json['id'] as String,
+      segmentId: json['segmentId'] as String,
     );
 
 Map<String, dynamic> _$SegmentIdDtoToJson(SegmentIdDto instance) =>
     <String, dynamic>{
-      'id': instance.id,
+      'segmentId': instance.segmentId,
     };
 
 SegmentDto _$SegmentDtoFromJson(Map<String, dynamic> json) => SegmentDto(
@@ -125,13 +103,13 @@ Map<String, dynamic> _$UpdateSegmentDtoToJson(UpdateSegmentDto instance) =>
 DeleteSegmentDto _$DeleteSegmentDtoFromJson(Map<String, dynamic> json) =>
     DeleteSegmentDto(
       docsId: json['docsId'] as String,
-      id: json['id'] as String,
+      segmentId: json['segmentId'] as String,
     );
 
 Map<String, dynamic> _$DeleteSegmentDtoToJson(DeleteSegmentDto instance) =>
     <String, dynamic>{
       'docsId': instance.docsId,
-      'id': instance.id,
+      'segmentId': instance.segmentId,
     };
 
 DocumentDto _$DocumentDtoFromJson(Map<String, dynamic> json) => DocumentDto(
@@ -149,7 +127,7 @@ Map<String, dynamic> _$DocumentDtoToJson(DocumentDto instance) =>
 
 SegmentInfoDto _$SegmentInfoDtoFromJson(Map<String, dynamic> json) =>
     SegmentInfoDto(
-      id: json['id'] as String,
+      segmentId: json['segmentId'] as String,
       text: json['text'] as String,
       metadata: json['metadata'] as Map<String, dynamic>,
     );
@@ -158,7 +136,7 @@ Map<String, dynamic> _$SegmentInfoDtoToJson(SegmentInfoDto instance) =>
     <String, dynamic>{
       'text': instance.text,
       'metadata': instance.metadata,
-      'id': instance.id,
+      'segmentId': instance.segmentId,
     };
 
 DocumentInfoDto _$DocumentInfoDtoFromJson(Map<String, dynamic> json) =>
@@ -219,7 +197,7 @@ Map<String, dynamic> _$BatchQueryDtoToJson(BatchQueryDto instance) =>
 
 SegmentResultDto _$SegmentResultDtoFromJson(Map<String, dynamic> json) =>
     SegmentResultDto(
-      id: json['id'] as String,
+      segmentId: json['segmentId'] as String,
       text: json['text'] as String,
       metadata: json['metadata'] as Map<String, dynamic>?,
       distance: (json['distance'] as num).toDouble(),
@@ -227,7 +205,7 @@ SegmentResultDto _$SegmentResultDtoFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$SegmentResultDtoToJson(SegmentResultDto instance) =>
     <String, dynamic>{
-      'id': instance.id,
+      'segmentId': instance.segmentId,
       'text': instance.text,
       'metadata': instance.metadata,
       'distance': instance.distance,

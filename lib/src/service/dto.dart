@@ -35,17 +35,6 @@ class DocsIdDto {
 }
 
 @JsonSerializable()
-class DocsNameDto {
-  String docsName;
-
-  DocsNameDto({required this.docsName});
-
-  factory DocsNameDto.fromJson(Map<String, dynamic> json) => _$DocsNameDtoFromJson(json);
-
-  Map<String, dynamic> toJson() => _$DocsNameDtoToJson(this);
-}
-
-@JsonSerializable()
 class DocsInfoDto extends DocsIdDto{
   String docsName;
 
@@ -60,35 +49,24 @@ class DocsInfoDto extends DocsIdDto{
 }
 
 @JsonSerializable()
-class DocsTextDto extends DocsNameDto{
+class CreateDocsTextDto {
+  String docsName;
   String text;
   String separator;
-
-  DocsTextDto({required super.docsName, required this.text, required this.separator});
-
-  factory DocsTextDto.fromJson(Map<String, dynamic> json) => _$DocsTextDtoFromJson(json);
-
-  @override
-  Map<String, dynamic> toJson() => _$DocsTextDtoToJson(this);
-}
-
-@JsonSerializable()
-class CreateDocsTextDto extends DocsTextDto{
   Map<String, dynamic> metadata;
 
-  CreateDocsTextDto({required super.docsName, required super.text, required super.separator, this.metadata = const {}});
+  CreateDocsTextDto({required this.docsName, required this.text, required this.separator, this.metadata = const {}});
 
   factory CreateDocsTextDto.fromJson(Map<String, dynamic> json) => _$CreateDocsTextDtoFromJson(json);
 
-  @override
   Map<String, dynamic> toJson() => _$CreateDocsTextDtoToJson(this);
 }
 
 @JsonSerializable()
 class SegmentIdDto {
-  String id;
+  String segmentId;
 
-  SegmentIdDto({required this.id});
+  SegmentIdDto({required this.segmentId});
 
   factory SegmentIdDto.fromJson(Map<String, dynamic> json) => _$SegmentIdDtoFromJson(json);
 
@@ -136,9 +114,9 @@ class UpdateSegmentDto extends DocsIdDto{
 
 @JsonSerializable()
 class DeleteSegmentDto extends DocsIdDto{
-  String id;
+  String segmentId;
 
-  DeleteSegmentDto({required super.docsId, required this.id});
+  DeleteSegmentDto({required super.docsId, required this.segmentId});
 
   factory DeleteSegmentDto.fromJson(Map<String, dynamic> json) => _$DeleteSegmentDtoFromJson(json);
 
@@ -147,37 +125,37 @@ class DeleteSegmentDto extends DocsIdDto{
 }
 
 @JsonSerializable()
-class DocumentDto extends DocsNameDto{
+class DocumentDto{
+  String docsName;
   List<SegmentDto> segmentList;
 
-  DocumentDto({required super.docsName, required this.segmentList});
+  DocumentDto({required this.docsName, required this.segmentList});
 
   factory DocumentDto.fromJson(Map<String, dynamic> json) => _$DocumentDtoFromJson(json);
 
-  @override
   Map<String, dynamic> toJson() => _$DocumentDtoToJson(this);
 
 }
 
 @JsonSerializable()
 class SegmentInfoDto extends SegmentDto{
-  String id;
+  String segmentId;
 
-  SegmentInfoDto({required this.id, required super.text, required super.metadata});
+  SegmentInfoDto({required this.segmentId, required super.text, required super.metadata});
 
   factory SegmentInfoDto.fromJson(Map<String, dynamic> json) => _$SegmentInfoDtoFromJson(json);
 
   @override
   Map<String, dynamic> toJson() => _$SegmentInfoDtoToJson(this);
 
-  factory SegmentInfoDto.fromModel(SegmentInfo segmentInfo) => SegmentInfoDto(id: segmentInfo.id, text: segmentInfo.text, metadata: segmentInfo.metadata);
+  factory SegmentInfoDto.fromModel(SegmentInfo segmentInfo) => SegmentInfoDto(segmentId: segmentInfo.id, text: segmentInfo.text, metadata: segmentInfo.metadata);
 
   @override
-  SegmentInfo toModel() => SegmentInfo(id: id, text: text, metadata: metadata);
+  SegmentInfo toModel() => SegmentInfo(id: segmentId, text: text, metadata: metadata);
 }
 
 @JsonSerializable()
-class DocumentInfoDto extends DocsInfoDto{
+class DocumentInfoDto extends DocsInfoDto {
   List<SegmentInfoDto> segmentInfoList;
 
   DocumentInfoDto({required super.docsId, required super.docsName, required this.segmentInfoList});
@@ -230,19 +208,18 @@ class BatchQueryDto extends DocsIdDto{
 }
 
 @JsonSerializable()
-class SegmentResultDto {
-  String id;
+class SegmentResultDto extends SegmentIdDto {
   String text;
   Map<String, dynamic>? metadata;
   double distance;
 
-  SegmentResultDto({required this.id, required this.text, required this.metadata, required this.distance});
+  SegmentResultDto({required super.segmentId, required this.text, required this.metadata, required this.distance});
 
   factory SegmentResultDto.fromJson(Map<String, dynamic> json) => _$SegmentResultDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$SegmentResultDtoToJson(this);
 
-  factory SegmentResultDto.fromModel(QuerySegmentResult segmentResult) => SegmentResultDto(id: segmentResult.id, text: segmentResult.text, metadata: segmentResult.metadata, distance: segmentResult.distance);
+  factory SegmentResultDto.fromModel(QuerySegmentResult segmentResult) => SegmentResultDto(segmentId: segmentResult.id, text: segmentResult.text, metadata: segmentResult.metadata, distance: segmentResult.distance);
 }
 
 @JsonSerializable()
