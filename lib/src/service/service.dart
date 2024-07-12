@@ -20,11 +20,11 @@ class EmbeddingsService {
         segmentDtoList.add(segmentDto);
       }
     }
-    DocumentDto documentDto = DocumentDto(docsName: createDocsTextDto.docsName, segmentList: segmentDtoList);
+    DocsDto documentDto = DocsDto(docsName: createDocsTextDto.docsName, segmentList: segmentDtoList);
     return await createDocs(documentDto);
   }
 
-  Future<DocsInfoDto> createDocs(DocumentDto documentDto) async {
+  Future<DocsInfoDto> createDocs(DocsDto documentDto) async {
     List<Segment> segmentList = [];
 
     for (SegmentDto segmentDto in documentDto.segmentList) {

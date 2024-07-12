@@ -125,13 +125,13 @@ class DeleteSegmentDto extends DocsIdDto{
 }
 
 @JsonSerializable()
-class DocumentDto{
+class DocsDto{
   String docsName;
   List<SegmentDto> segmentList;
 
-  DocumentDto({required this.docsName, required this.segmentList});
+  DocsDto({required this.docsName, required this.segmentList});
 
-  factory DocumentDto.fromJson(Map<String, dynamic> json) => _$DocumentDtoFromJson(json);
+  factory DocsDto.fromJson(Map<String, dynamic> json) => _$DocumentDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$DocumentDtoToJson(this);
 
