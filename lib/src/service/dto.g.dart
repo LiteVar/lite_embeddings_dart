@@ -60,7 +60,7 @@ Map<String, dynamic> _$DocsTextDtoToJson(DocsTextDto instance) =>
       'separator': instance.separator,
     };
 
-CreateDocsTextDto _$CreateDocsDtoFromJson(Map<String, dynamic> json) =>
+CreateDocsTextDto _$CreateDocsTextDtoFromJson(Map<String, dynamic> json) =>
     CreateDocsTextDto(
       docsName: json['docsName'] as String,
       text: json['text'] as String,
@@ -68,7 +68,7 @@ CreateDocsTextDto _$CreateDocsDtoFromJson(Map<String, dynamic> json) =>
       metadata: json['metadata'] as Map<String, dynamic>? ?? const {},
     );
 
-Map<String, dynamic> _$CreateDocsDtoToJson(CreateDocsTextDto instance) =>
+Map<String, dynamic> _$CreateDocsTextDtoToJson(CreateDocsTextDto instance) =>
     <String, dynamic>{
       'docsName': instance.docsName,
       'text': instance.text,
@@ -235,6 +235,7 @@ Map<String, dynamic> _$SegmentResultDtoToJson(SegmentResultDto instance) =>
 
 QueryResultDto _$QueryResultDtoFromJson(Map<String, dynamic> json) =>
     QueryResultDto(
+      docsId: json['docsId'] as String,
       segmentResultList: (json['segmentResultList'] as List<dynamic>)
           .map((e) => SegmentResultDto.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -242,5 +243,6 @@ QueryResultDto _$QueryResultDtoFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$QueryResultDtoToJson(QueryResultDto instance) =>
     <String, dynamic>{
+      'docsId': instance.docsId,
       'segmentResultList': instance.segmentResultList,
     };

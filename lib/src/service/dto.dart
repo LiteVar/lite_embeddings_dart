@@ -78,10 +78,10 @@ class CreateDocsTextDto extends DocsTextDto{
 
   CreateDocsTextDto({required super.docsName, required super.text, required super.separator, this.metadata = const {}});
 
-  factory CreateDocsTextDto.fromJson(Map<String, dynamic> json) => _$CreateDocsDtoFromJson(json);
+  factory CreateDocsTextDto.fromJson(Map<String, dynamic> json) => _$CreateDocsTextDtoFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$CreateDocsDtoToJson(this);
+  Map<String, dynamic> toJson() => _$CreateDocsTextDtoToJson(this);
 }
 
 @JsonSerializable()
@@ -246,10 +246,10 @@ class SegmentResultDto {
 }
 
 @JsonSerializable()
-class QueryResultDto {
+class QueryResultDto extends DocsIdDto {
   List<SegmentResultDto> segmentResultList;
 
-  QueryResultDto({required this.segmentResultList});
+  QueryResultDto({required super.docsId, required this.segmentResultList});
 
   factory QueryResultDto.fromJson(Map<String, dynamic> json) => _$QueryResultDtoFromJson(json);
 

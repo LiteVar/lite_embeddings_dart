@@ -78,7 +78,7 @@ class EmbeddingsService {
     List<List<QuerySegmentResult>> segmentResultListList = await _vdb.query(queryDto.docsId, [queryDto.queryText], nResults: queryDto.nResults);
       List<QuerySegmentResult> segmentResultList = segmentResultListList[0];
       List<SegmentResultDto> segmentResultDtoList = segmentResultList.map((segmentResult)=> SegmentResultDto.fromModel(segmentResult)).toList();
-      QueryResultDto queryResultDto = QueryResultDto(segmentResultList: segmentResultDtoList);
+      QueryResultDto queryResultDto = QueryResultDto(docsId: queryDto.docsId, segmentResultList: segmentResultDtoList);
     return queryResultDto;
   }
 
@@ -88,7 +88,7 @@ class EmbeddingsService {
     for(int i=0; i< segmentResultListList.length; i++) {
       List<QuerySegmentResult> segmentResultList = segmentResultListList[i];
       List<SegmentResultDto> segmentResultDtoList = segmentResultList.map((segmentResult)=> SegmentResultDto.fromModel(segmentResult)).toList();
-      QueryResultDto queryResultDto = QueryResultDto(segmentResultList: segmentResultDtoList);
+      QueryResultDto queryResultDto = QueryResultDto(docsId: batchQueryDto.docsId, segmentResultList: segmentResultDtoList);
       queryResultDtoList.add(queryResultDto);
     }
     return queryResultDtoList;
