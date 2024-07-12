@@ -131,9 +131,9 @@ class DocsDto{
 
   DocsDto({required this.docsName, required this.segmentList});
 
-  factory DocsDto.fromJson(Map<String, dynamic> json) => _$DocumentDtoFromJson(json);
+  factory DocsDto.fromJson(Map<String, dynamic> json) => _$DocsDtoFromJson(json);
 
-  Map<String, dynamic> toJson() => _$DocumentDtoToJson(this);
+  Map<String, dynamic> toJson() => _$DocsDtoToJson(this);
 
 }
 
@@ -155,15 +155,15 @@ class SegmentInfoDto extends SegmentDto{
 }
 
 @JsonSerializable()
-class DocumentInfoDto extends DocsInfoDto {
+class DocsFullInfoDto extends DocsInfoDto {
   List<SegmentInfoDto> segmentInfoList;
 
-  DocumentInfoDto({required super.docsId, required super.docsName, required this.segmentInfoList});
+  DocsFullInfoDto({required super.docsId, required super.docsName, required this.segmentInfoList});
 
-  factory DocumentInfoDto.fromJson(Map<String, dynamic> json) => _$DocumentInfoDtoFromJson(json);
+  factory DocsFullInfoDto.fromJson(Map<String, dynamic> json) => _$DocsFullInfoDtoFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$DocumentInfoDtoToJson(this);
+  Map<String, dynamic> toJson() => _$DocsFullInfoDtoToJson(this);
 }
 
 @JsonSerializable()

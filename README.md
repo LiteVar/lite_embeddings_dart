@@ -46,8 +46,8 @@ Future<void> main() async {
   /// List Segments
   String docsId = "<FROM DocsInfoDto>";
   DocsIdDto docsIdDto = DocsIdDto(docsId: docsId);
-  DocumentInfoDto? documentInfoDto = await embeddingsService.listSegments(docsIdDto);
-  print("documentInfoDto: ${jsonEncode(documentInfoDto?.toJson())}");
+  DocsFullInfoDto? docsFullInfoDto = await embeddingsService.listSegments(docsIdDto);
+  print("docsFullInfoDto: ${jsonEncode(docsFullInfoDto?.toJson())}");
 
   /// Query
   String questText = "Who is author?";

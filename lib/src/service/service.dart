@@ -20,18 +20,18 @@ class EmbeddingsService {
         segmentDtoList.add(segmentDto);
       }
     }
-    DocsDto documentDto = DocsDto(docsName: createDocsTextDto.docsName, segmentList: segmentDtoList);
-    return await createDocs(documentDto);
+    DocsDto docsDto = DocsDto(docsName: createDocsTextDto.docsName, segmentList: segmentDtoList);
+    return await createDocs(docsDto);
   }
 
-  Future<DocsInfoDto> createDocs(DocsDto documentDto) async {
+  Future<DocsInfoDto> createDocs(DocsDto docsDto) async {
     List<Segment> segmentList = [];
 
-    for (SegmentDto segmentDto in documentDto.segmentList) {
+    for (SegmentDto segmentDto in docsDto.segmentList) {
       segmentList.add(segmentDto.toModel());
     }
 
-    CollectionInfo collectionInfo = await _vdb.createCollection(documentDto.docsName, segmentList);
+    CollectionInfo collectionInfo = await _vdb.createCollection(docsDto.docsName, segmentList);
 
     return DocsInfoDto.fromModel(collectionInfo);
   }
@@ -50,13 +50,13 @@ class EmbeddingsService {
     return DocsInfoDto.fromModel(collectionInfo);
   }
 
-  Future<DocumentInfoDto?> listSegments(DocsIdDto docsIdDto) async {
+  Future<DocsFullInfoDto?> listSegments(DocsIdDto docsIdDto) async {
     CollectionResult? collectionResult = await _vdb.listSegments(docsIdDto.docsId);
     if(collectionResult == null) return null;
 
     List<SegmentInfoDto> segmentInfoDtoList = collectionResult.segmentList.map((segmentInfo)=> SegmentInfoDto(segmentId: segmentInfo.id, text: segmentInfo.text, metadata: segmentInfo.metadata)).toList();
-    DocumentInfoDto documentInfoDto = DocumentInfoDto(docsId: collectionResult.name,docsName: collectionResult.docsName, segmentInfoList: segmentInfoDtoList);
-    return documentInfoDto;
+    DocsFullInfoDto docsFullInfoDto = DocsFullInfoDto(docsId: collectionResult.name,docsName: collectionResult.docsName, segmentInfoList: segmentInfoDtoList);
+    return docsFullInfoDto;
   }
 
   Future<SegmentIdDto> insertSegment(InsertSegmentDto insertSegmentDto) async {

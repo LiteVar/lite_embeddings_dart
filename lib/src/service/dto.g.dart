@@ -112,15 +112,14 @@ Map<String, dynamic> _$DeleteSegmentDtoToJson(DeleteSegmentDto instance) =>
       'segmentId': instance.segmentId,
     };
 
-DocsDto _$DocumentDtoFromJson(Map<String, dynamic> json) => DocsDto(
+DocsDto _$DocsDtoFromJson(Map<String, dynamic> json) => DocsDto(
       docsName: json['docsName'] as String,
       segmentList: (json['segmentList'] as List<dynamic>)
           .map((e) => SegmentDto.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 
-Map<String, dynamic> _$DocumentDtoToJson(DocsDto instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$DocsDtoToJson(DocsDto instance) => <String, dynamic>{
       'docsName': instance.docsName,
       'segmentList': instance.segmentList,
     };
@@ -139,8 +138,8 @@ Map<String, dynamic> _$SegmentInfoDtoToJson(SegmentInfoDto instance) =>
       'segmentId': instance.segmentId,
     };
 
-DocumentInfoDto _$DocumentInfoDtoFromJson(Map<String, dynamic> json) =>
-    DocumentInfoDto(
+DocsFullInfoDto _$DocsFullInfoDtoFromJson(Map<String, dynamic> json) =>
+    DocsFullInfoDto(
       docsId: json['docsId'] as String,
       docsName: json['docsName'] as String,
       segmentInfoList: (json['segmentInfoList'] as List<dynamic>)
@@ -148,7 +147,7 @@ DocumentInfoDto _$DocumentInfoDtoFromJson(Map<String, dynamic> json) =>
           .toList(),
     );
 
-Map<String, dynamic> _$DocumentInfoDtoToJson(DocumentInfoDto instance) =>
+Map<String, dynamic> _$DocsFullInfoDtoToJson(DocsFullInfoDto instance) =>
     <String, dynamic>{
       'docsId': instance.docsId,
       'docsName': instance.docsName,
