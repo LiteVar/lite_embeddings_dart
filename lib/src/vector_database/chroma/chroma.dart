@@ -83,7 +83,7 @@ class Chroma extends VectorDatabase {
 
     Map<String, dynamic> metadata = Map<String, dynamic>.from(collection.metadata!);
 
-    List<String> segmentIdOrder = jsonDecode(metadata[segmentIdOrderKey]);
+    List<String> segmentIdOrder = (jsonDecode(metadata[segmentIdOrderKey])  as List<dynamic>).map((segmentId)=> (segmentId as String)).toList();
     if(index == null || index >= segmentIdOrder.length) {
       segmentIdOrder.add(segmentId);
     } else {
@@ -112,7 +112,7 @@ class Chroma extends VectorDatabase {
     await collection.delete(ids: [segmentId]);
 
     Map<String, dynamic> metadata = Map<String, dynamic>.from(collection.metadata!);
-    List<String> segmentIdOrder = jsonDecode(metadata[segmentIdOrderKey]);
+    List<String> segmentIdOrder = (jsonDecode(metadata[segmentIdOrderKey]) as List<dynamic>).map((segmentId)=> (segmentId as String)).toList();
     segmentIdOrder.remove(segmentId);
     metadata[segmentIdOrderKey] = jsonEncode(segmentIdOrder);
     await collection.modify(name: collectionName, metadata: metadata);
