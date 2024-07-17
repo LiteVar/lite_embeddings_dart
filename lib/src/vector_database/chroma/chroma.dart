@@ -69,7 +69,7 @@ class Chroma extends VectorDatabase {
   @override
   Future<CollectionInfo> renameCollection(String collectionName, String newDocsName) async {
     Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
-    Map<String, dynamic> metadata = collection.metadata!;
+    Map<String, dynamic> metadata = Map<String, dynamic>.from(collection.metadata!);
     metadata[docsNameKey] = newDocsName;
     await collection.modify(name: collectionName, metadata: metadata);
     return CollectionInfo(name: collectionName, docsName: newDocsName);
