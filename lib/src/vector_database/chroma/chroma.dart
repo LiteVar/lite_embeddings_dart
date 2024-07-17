@@ -80,12 +80,19 @@ class Chroma extends VectorDatabase {
     String segmentId = Uuid().v4();
     Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
     collection.add(ids: [segmentId], documents: [segment.text], metadatas: [segment.metadata]);
-    List<String> segmentIdOrder = jsonDecode(collection.metadata![segmentIdOrderKey]);
+
+    Map<String, dynamic> metadata = Map<String, dynamic>.from(collection.metadata!);
+
+    List<String> segmentIdOrder = jsonDecode(metadata[segmentIdOrderKey]);
     if(index == null || index >= segmentIdOrder.length) {
       segmentIdOrder.add(segmentId);
     } else {
       segmentIdOrder.insert(index, segmentId);
     }
+
+    metadata[segmentIdOrderKey] = jsonEncode(segmentIdOrder);
+    await collection.modify(name: collectionName, metadata: metadata);
+
     return segmentId;
   }
 
@@ -103,6 +110,12 @@ class Chroma extends VectorDatabase {
   Future<void> deleteSegment(String collectionName, String segmentId) async {
     Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
     await collection.delete(ids: [segmentId]);
+
+    Map<String, dynamic> metadata = Map<String, dynamic>.from(collection.metadata!);
+    List<String> segmentIdOrder = jsonDecode(metadata[segmentIdOrderKey]);
+    segmentIdOrder.remove(segmentId);
+    metadata[segmentIdOrderKey] = jsonEncode(segmentIdOrder);
+    await collection.modify(name: collectionName, metadata: metadata);
   }
 
   @override
