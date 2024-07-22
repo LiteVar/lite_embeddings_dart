@@ -2,7 +2,7 @@
 
 English · [中文](README-zh_CN.md)
 
-LLM Embedding tool for Dart
+LLM Embeddings tool for Dart
 
 - Support Vector Database: Chroma
 - Support file type：pure text, include `Markdown`、`TXT`

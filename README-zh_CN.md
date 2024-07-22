@@ -2,7 +2,7 @@
 
 [English](README.md) · 中文
 
-大模型嵌入工具服务
+大模型嵌入工具
 
 - 支持的向量数据库: Chroma
 - 支持的类型：纯文本，包括`Markdown`、`TXT`

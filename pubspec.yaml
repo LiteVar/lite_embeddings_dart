@@ -1,7 +1,7 @@
 name: lite_embeddings_dart
-description: A
+description: An LLM Embeddings tool for Dart
 version: 0.1.0
-# repository: https://github.com/LiteVar/lite_embeddings_dart
+repository: https://github.com/LiteVar/lite_embeddings_dart
 
 environment:
   sdk: ^3.4.3
