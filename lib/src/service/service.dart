@@ -112,7 +112,10 @@ class EmbeddingsService {
     }
 
     multiDocsQueryResultDtoList.sort((a, b) => a.segmentResult.distance.compareTo(b.segmentResult.distance));
-    multiDocsQueryResultDtoList.length = multiDocsQueryRequestDto.nResults;
+    if(multiDocsQueryResultDtoList.length > multiDocsQueryRequestDto.nResults) {
+      multiDocsQueryResultDtoList.length = multiDocsQueryRequestDto.nResults;
+    }
+
     return multiDocsQueryResultDtoList;
   }
 }
