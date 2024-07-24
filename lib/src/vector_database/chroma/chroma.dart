@@ -170,7 +170,7 @@ class Chroma extends VectorDatabase {
     return segmentResultListList;
   }
 
-  Future<List<MultiDocsQueryResult>> multiQuery(List<String> collectionNameList, String queryText, { int nResults = 2 }) async {
+  Future<List<MultiDocsQueryResult>> multiQuery(List<String> collectionNameList, String queryText, { int nResults = 2, bool removeDuplicates = true }) async {
 
     List<List<double>> queryEmbeddings = await embeddingFunction.generate([Embeddable.document(queryText)]);
     List<MultiDocsQueryResult> multiDocsQueryResultList = [];
@@ -187,6 +187,11 @@ class Chroma extends VectorDatabase {
         MultiDocsQueryResult multiDocsQueryResult = MultiDocsQueryResult(docsId: collectionName, querySegmentResult: segmentResult);
         multiDocsQueryResultList.add(multiDocsQueryResult);
       }
+    }
+
+    Set<double> distanceSet = {};
+    if(removeDuplicates) {
+      multiDocsQueryResultList.retainWhere((multiDocsQueryResult) => distanceSet.add(multiDocsQueryResult.querySegmentResult.distance));
     }
 
     multiDocsQueryResultList.sort((a, b) => a.querySegmentResult.distance.compareTo(b.querySegmentResult.distance));

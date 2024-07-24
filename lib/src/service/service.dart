@@ -95,7 +95,12 @@ class EmbeddingsService {
   }
 
   Future<List<MultiDocsQueryResultDto>> multiDocsQuery(MultiDocsQueryRequestDto multiDocsQueryRequestDto) async {
-    List<MultiDocsQueryResult> multiDocsQueryResultList = await _vdb.multiQuery(multiDocsQueryRequestDto.docsIdList, multiDocsQueryRequestDto.queryText, nResults: multiDocsQueryRequestDto.nResults);
+    List<MultiDocsQueryResult> multiDocsQueryResultList = await _vdb.multiQuery(
+      multiDocsQueryRequestDto.docsIdList,
+      multiDocsQueryRequestDto.queryText,
+      nResults: multiDocsQueryRequestDto.nResults,
+      removeDuplicates: multiDocsQueryRequestDto.removeDuplicates
+    );
     List<MultiDocsQueryResultDto> multiDocsQueryResultDtoList = multiDocsQueryResultList.map((multiDocsQueryResult)=>MultiDocsQueryResultDto.fromModel(multiDocsQueryResult)).toList();
     return multiDocsQueryResultDtoList;
   }

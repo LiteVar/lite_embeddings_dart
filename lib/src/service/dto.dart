@@ -239,8 +239,9 @@ class MultiDocsQueryRequestDto {
   List<String> docsIdList;
   String queryText;
   int nResults;
+  bool removeDuplicates;
 
-  MultiDocsQueryRequestDto({required this.docsIdList, required this.queryText, this.nResults = 2});
+  MultiDocsQueryRequestDto({required this.docsIdList, required this.queryText, this.nResults = 2, this.removeDuplicates = true});
 
   factory MultiDocsQueryRequestDto.fromJson(Map<String, dynamic> json) => _$DocsQueryRequestDtoFromJson(json);
 
