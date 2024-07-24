@@ -93,4 +93,26 @@ class EmbeddingsService {
     }
     return queryResultDtoList;
   }
+
+  Future<List<MultiDocsQueryResultDto>> multiDocsQuery(MultiDocsQueryRequestDto multiDocsQueryRequestDto) async {
+    List<MultiDocsQueryResultDto> multiDocsQueryResultDtoList = [];
+    for(String docsId in multiDocsQueryRequestDto.docsIdList) {
+      QueryDto queryDto = QueryDto(docsId: docsId, queryText: multiDocsQueryRequestDto.queryText);
+      QueryResultDto queryResultDto = await query(queryDto);
+      queryResultDto.segmentResultList.forEach((segmentResultDto){
+        SegmentResultDto segmentResult = SegmentResultDto(
+            segmentId: segmentResultDto.segmentId,
+            text: segmentResultDto.text,
+            metadata: segmentResultDto.metadata,
+            distance: segmentResultDto.distance
+        );
+        MultiDocsQueryResultDto multiDocsQueryResultDto = MultiDocsQueryResultDto(docsId: queryResultDto.docsId, segmentResult: segmentResult);
+        multiDocsQueryResultDtoList.add(multiDocsQueryResultDto);
+      });
+    }
+
+    multiDocsQueryResultDtoList.sort((a, b) => a.segmentResult.distance.compareTo(b.segmentResult.distance));
+    multiDocsQueryResultDtoList.length = multiDocsQueryRequestDto.nResults;
+    return multiDocsQueryResultDtoList;
+  }
 }

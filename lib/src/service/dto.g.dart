@@ -223,3 +223,33 @@ Map<String, dynamic> _$QueryResultDtoToJson(QueryResultDto instance) =>
       'docsId': instance.docsId,
       'segmentResultList': instance.segmentResultList,
     };
+
+MultiDocsQueryRequestDto _$DocsQueryRequestDtoFromJson(Map<String, dynamic> json) =>
+    MultiDocsQueryRequestDto(
+      docsIdList: (json['docsIdList'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList(),
+      queryText: json['queryText'] as String,
+      nResults: (json['nResults'] as num?)?.toInt() ?? 2,
+    );
+
+Map<String, dynamic> _$DocsQueryRequestDtoToJson(
+        MultiDocsQueryRequestDto instance) =>
+    <String, dynamic>{
+      'docsIdList': instance.docsIdList,
+      'queryText': instance.queryText,
+      'nResults': instance.nResults,
+    };
+
+MultiDocsQueryResultDto _$DocsQueryResultDtoFromJson(Map<String, dynamic> json) =>
+    MultiDocsQueryResultDto(
+      docsId: json['docsId'] as String,
+      segmentResult: SegmentResultDto.fromJson(
+          json['segmentResult'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$DocsQueryResultDtoToJson(MultiDocsQueryResultDto instance) =>
+    <String, dynamic>{
+      'docsId': instance.docsId,
+      'segmentResult': instance.segmentResult,
+    };

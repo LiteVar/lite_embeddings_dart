@@ -233,3 +233,28 @@ class QueryResultDto extends DocsIdDto {
   Map<String, dynamic> toJson() => _$QueryResultDtoToJson(this);
 
 }
+
+@JsonSerializable()
+class MultiDocsQueryRequestDto {
+  List<String> docsIdList;
+  String queryText;
+  int nResults;
+
+  MultiDocsQueryRequestDto({required this.docsIdList, required this.queryText, this.nResults = 2});
+
+  factory MultiDocsQueryRequestDto.fromJson(Map<String, dynamic> json) => _$DocsQueryRequestDtoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$DocsQueryRequestDtoToJson(this);
+}
+
+@JsonSerializable()
+class MultiDocsQueryResultDto extends DocsIdDto {
+  SegmentResultDto segmentResult;
+
+  MultiDocsQueryResultDto({required super.docsId, required this.segmentResult});
+
+  factory MultiDocsQueryResultDto.fromJson(Map<String, dynamic> json) => _$DocsQueryResultDtoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$DocsQueryResultDtoToJson(this);
+
+}
