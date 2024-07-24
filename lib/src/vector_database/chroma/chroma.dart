@@ -169,5 +169,32 @@ class Chroma extends VectorDatabase {
     }
     return segmentResultListList;
   }
+
+  Future<List<MultiDocsQueryResult>> multiQuery(List<String> collectionNameList, String queryText, { int nResults = 2 }) async {
+
+    List<List<double>> queryEmbeddings = await embeddingFunction.generate([Embeddable.document(queryText)]);
+    List<MultiDocsQueryResult> multiDocsQueryResultList = [];
+    for(String collectionName in collectionNameList) {
+      Collection collection = await client.getCollection(name: collectionName);
+      QueryResponse queryResponse = await collection.query(queryEmbeddings: queryEmbeddings, nResults: nResults );
+      for(int i=0; i<queryResponse.ids[0].length; i++) {
+        QuerySegmentResult segmentResult = QuerySegmentResult(
+            id: queryResponse.ids[0][i],
+            text: queryResponse.documents![0][i]!,
+            metadata: queryResponse.metadatas?[0][i]==null?{}:queryResponse.metadatas![0][i]!,
+            distance: queryResponse.distances![0][i]
+        );
+        MultiDocsQueryResult multiDocsQueryResult = MultiDocsQueryResult(docsId: collectionName, querySegmentResult: segmentResult);
+        multiDocsQueryResultList.add(multiDocsQueryResult);
+      }
+    }
+
+    multiDocsQueryResultList.sort((a, b) => a.querySegmentResult.distance.compareTo(b.querySegmentResult.distance));
+    if(multiDocsQueryResultList.length > nResults) {
+      multiDocsQueryResultList.length = nResults;
+    }
+
+    return multiDocsQueryResultList;
+  }
   
 }

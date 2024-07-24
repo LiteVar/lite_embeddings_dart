@@ -257,4 +257,8 @@ class MultiDocsQueryResultDto extends DocsIdDto {
 
   Map<String, dynamic> toJson() => _$DocsQueryResultDtoToJson(this);
 
+  factory MultiDocsQueryResultDto.fromModel(MultiDocsQueryResult multiDocsQueryResult) => MultiDocsQueryResultDto(
+      docsId: multiDocsQueryResult.docsId,
+      segmentResult: SegmentResultDto.fromModel(multiDocsQueryResult.querySegmentResult)
+  );
 }

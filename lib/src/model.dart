@@ -46,3 +46,10 @@ class QuerySegmentResult extends SegmentInfo{
 
   QuerySegmentResult({required super.id, required super.text, super.metadata = const {}, required this.distance});
 }
+
+class MultiDocsQueryResult{
+  String docsId;
+  QuerySegmentResult querySegmentResult;
+
+  MultiDocsQueryResult({required this.docsId, required this.querySegmentResult});
+}

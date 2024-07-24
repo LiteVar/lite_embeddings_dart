@@ -15,5 +15,6 @@ abstract class VectorDatabase {
   Future<void> deleteSegment(String collectionName, String segmentId);
 
   Future<List<List<QuerySegmentResult>>> query(String collectionName, List<String> queryTexts, { int nResults = 2 });
+  Future<List<MultiDocsQueryResult>> multiQuery(List<String> collectionNameList, String queryText, { int nResults = 2 });
 
 }
