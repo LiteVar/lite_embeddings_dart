@@ -97,7 +97,7 @@ class EmbeddingsService {
   Future<List<MultiDocsQueryResultDto>> multiDocsQuery(MultiDocsQueryRequestDto multiDocsQueryRequestDto) async {
     List<MultiDocsQueryResultDto> multiDocsQueryResultDtoList = [];
     for(String docsId in multiDocsQueryRequestDto.docsIdList) {
-      QueryDto queryDto = QueryDto(docsId: docsId, queryText: multiDocsQueryRequestDto.queryText);
+      QueryDto queryDto = QueryDto(docsId: docsId, queryText: multiDocsQueryRequestDto.queryText, nResults: multiDocsQueryRequestDto.nResults);
       QueryResultDto queryResultDto = await query(queryDto);
       queryResultDto.segmentResultList.forEach((segmentResultDto){
         SegmentResultDto segmentResult = SegmentResultDto(
