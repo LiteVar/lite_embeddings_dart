@@ -5,6 +5,7 @@ library;
 
 export 'src/service/service.dart';
 export 'src/service/dto.dart';
+export 'src/service/exception.dart';
 export 'src/vector_database/vector_database.dart';
 export 'src/vector_database/chroma/chroma.dart';
 export 'src/vector_database/chroma/openai_embedding_function.dart';

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:chromadb/chromadb.dart';
+import '../../service/exception.dart';
 import 'package:uuid/uuid.dart';
 import '../vector_database.dart';
 import '../../model.dart';
@@ -41,23 +42,39 @@ class Chroma extends VectorDatabase {
     collectionMetadata[segmentIdOrderKey] = jsonEncode(idList);
     collectionMetadata[docsNameKey] = docsName;
 
-     Collection collection = await client.createCollection(
-      name: docsIdAsName,
-      metadata: collectionMetadata,
-      embeddingFunction: embeddingFunction
-    );
-    await collection.add(
-      ids: idList,
-      documents: documents,
-      metadatas: metadataList
-    );
+    try {
+      Collection collection = await client.createCollection(
+        name: docsIdAsName,
+        metadata: collectionMetadata,
+        embeddingFunction: embeddingFunction
+      );
+      await collection.add(
+        ids: idList,
+        documents: documents,
+        metadatas: metadataList
+      );
+    } on ChromaApiClientException catch(e) {
+      VectorDatabaseException vdbException = VectorDatabaseException(
+          code: e.code??500,
+          message: e.message + ": " + (e.body is String ? jsonDecode(e.body as String) : e.body.toString())
+      );
+      throw vdbException;
+    }
 
     return CollectionInfo(name: docsIdAsName, docsName: docsName);
   }
 
   @override
   Future<void> deleteCollection(String collectionName) async {
-    await client.deleteCollection(name: collectionName);
+    try {
+      await client.deleteCollection(name: collectionName);
+    } on ChromaApiClientException catch(e) {
+      VectorDatabaseException vdbException = VectorDatabaseException(
+          code: e.code??500,
+          message: e.message + ": " + (e.body is String ? jsonDecode(e.body as String) : e.body.toString())
+      );
+      throw vdbException;
+    }
   }
 
   @override
@@ -77,115 +94,165 @@ class Chroma extends VectorDatabase {
 
   @override
   Future<String> insertSegment(String collectionName, Segment segment, int? index) async {
-    String segmentId = Uuid().v4();
-    Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
-    collection.add(ids: [segmentId], documents: [segment.text], metadatas: [segment.metadata]);
+    try {
+      String segmentId = Uuid().v4();
+      Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
+      collection.add(ids: [segmentId], documents: [segment.text], metadatas: [segment.metadata]);
 
-    Map<String, dynamic> metadata = Map<String, dynamic>.from(collection.metadata!);
+      Map<String, dynamic> metadata = Map<String, dynamic>.from(collection.metadata!);
 
-    List<String> segmentIdOrder = (jsonDecode(metadata[segmentIdOrderKey])  as List<dynamic>).map((segmentId)=> (segmentId as String)).toList();
-    if(index == null || index >= segmentIdOrder.length) {
-      segmentIdOrder.add(segmentId);
-    } else {
-      segmentIdOrder.insert(index, segmentId);
+      List<String> segmentIdOrder = (jsonDecode(metadata[segmentIdOrderKey])  as List<dynamic>).map((segmentId)=> (segmentId as String)).toList();
+      if(index == null || index >= segmentIdOrder.length) {
+        segmentIdOrder.add(segmentId);
+      } else {
+        segmentIdOrder.insert(index, segmentId);
+      }
+
+      metadata[segmentIdOrderKey] = jsonEncode(segmentIdOrder);
+      await collection.modify(name: collectionName, metadata: metadata);
+
+      return segmentId;
+    } on ChromaApiClientException catch(e) {
+      VectorDatabaseException vdbException = VectorDatabaseException(
+          code: e.code??500,
+          message: e.message + ": " + (e.body is String ? jsonDecode(e.body as String) : e.body.toString())
+      );
+      throw vdbException;
     }
-
-    metadata[segmentIdOrderKey] = jsonEncode(segmentIdOrder);
-    await collection.modify(name: collectionName, metadata: metadata);
-
-    return segmentId;
   }
 
   @override
   Future<void> updateSegment(String collectionName, SegmentInfo segmentInfo) async {
-    Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
-    collection.update(
-      ids: [segmentInfo.id],
-      documents: [segmentInfo.text],
-      metadatas: [segmentInfo.metadata]
-    );
+    try {
+      Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
+      collection.update(
+        ids: [segmentInfo.id],
+        documents: [segmentInfo.text],
+        metadatas: [segmentInfo.metadata]
+      );
+    } on ChromaApiClientException catch(e) {
+      VectorDatabaseException vdbException = VectorDatabaseException(
+          code: e.code??500,
+          message: e.message + ": " + (e.body is String ? jsonDecode(e.body as String) : e.body.toString())
+      );
+      throw vdbException;
+    }
   }
 
   @override
   Future<void> deleteSegment(String collectionName, String segmentId) async {
-    Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
-    await collection.delete(ids: [segmentId]);
+    try {
+      Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
+      await collection.delete(ids: [segmentId]);
 
-    Map<String, dynamic> metadata = Map<String, dynamic>.from(collection.metadata!);
-    List<String> segmentIdOrder = (jsonDecode(metadata[segmentIdOrderKey]) as List<dynamic>).map((segmentId)=> (segmentId as String)).toList();
-    segmentIdOrder.remove(segmentId);
-    metadata[segmentIdOrderKey] = jsonEncode(segmentIdOrder);
-    await collection.modify(name: collectionName, metadata: metadata);
+      Map<String, dynamic> metadata = Map<String, dynamic>.from(collection.metadata!);
+      List<String> segmentIdOrder = (jsonDecode(metadata[segmentIdOrderKey]) as List<dynamic>).map((segmentId)=> (segmentId as String)).toList();
+      segmentIdOrder.remove(segmentId);
+      metadata[segmentIdOrderKey] = jsonEncode(segmentIdOrder);
+      await collection.modify(name: collectionName, metadata: metadata);
+    } on ChromaApiClientException catch(e) {
+      VectorDatabaseException vdbException = VectorDatabaseException(
+          code: e.code??500,
+          message: e.message + ": " + (e.body is String ? jsonDecode(e.body as String) : e.body.toString())
+      );
+      throw vdbException;
+    }
   }
 
   @override
   Future<CollectionResult?> listSegments(String collectionName) async {
-    Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
-    String segmentIdOrderString = collection.metadata![segmentIdOrderKey];
-    List<String> segmentIdOrder = List<String>.from(jsonDecode(segmentIdOrderString));
-    GetResponse getResponse = await collection.get();
+    try {
+      Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
+      String segmentIdOrderString = collection.metadata![segmentIdOrderKey];
+      List<String> segmentIdOrder = List<String>.from(jsonDecode(segmentIdOrderString));
+      GetResponse getResponse = await collection.get();
 
-    if(getResponse.documents == null) return null;
+      if(getResponse.documents == null) return null;
 
-    // Build segmentId-indexId Map, for fetching indexId quickly
-    List<String> idList = getResponse.ids;
-    Map<String, int> idMap = {};
-    for(int i=0; i< idList.length; i++) {
-      String id = idList[i];
-      idMap[id] = i;
+      // Build segmentId-indexId Map, for fetching indexId quickly
+      List<String> idList = getResponse.ids;
+      Map<String, int> idMap = {};
+      for(int i=0; i< idList.length; i++) {
+        String id = idList[i];
+        idMap[id] = i;
+      }
+
+      List<SegmentInfo> segmentList = [];
+      for (String segmentId in segmentIdOrder) {
+        int i = idMap[segmentId]!;  // fetch indexId quickly
+        SegmentInfo segment = SegmentInfo(id: getResponse.ids[i], text: getResponse.documents![i]!, metadata: (getResponse.metadatas?[i] == null)?{}:getResponse.metadatas![i]!);
+        segmentList.add(segment);
+      }
+
+      return CollectionResult(name: collectionName, docsName: collection.metadata![docsNameKey], segmentList: segmentList);
+    } on ChromaApiClientException catch(e) {
+      VectorDatabaseException vdbException = VectorDatabaseException(
+          code: e.code??500,
+          message: e.message + ": " + (e.body is String ? jsonDecode(e.body as String) : e.body.toString())
+      );
+      throw vdbException;
     }
-
-    List<SegmentInfo> segmentList = [];
-    for (String segmentId in segmentIdOrder) {
-      int i = idMap[segmentId]!;  // fetch indexId quickly
-      SegmentInfo segment = SegmentInfo(id: getResponse.ids[i], text: getResponse.documents![i]!, metadata: (getResponse.metadatas?[i] == null)?{}:getResponse.metadatas![i]!);
-      segmentList.add(segment);
-    }
-
-    return CollectionResult(name: collectionName, docsName: collection.metadata![docsNameKey], segmentList: segmentList);
   }
 
   @override
   Future<List<List<QuerySegmentResult>>> query(String collectionName, List<String> queryTexts, { int nResults = 2 }) async {
-    Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
-
-    QueryResponse queryResponse = await collection.query(queryTexts: queryTexts, nResults: nResults );
-
     List<List<QuerySegmentResult>> segmentResultListList = [];
+    try {
+      Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
+      QueryResponse queryResponse = await collection.query(queryTexts: queryTexts, nResults: nResults );
 
-    for(int i=0; i< queryTexts.length; i++) {
-      List<QuerySegmentResult> segmentResultList = [];
+      for(int i=0; i< queryTexts.length; i++) {
+        List<QuerySegmentResult> segmentResultList = [];
 
-      for(int j=0; j< queryResponse.ids[i].length; j++) {
-        QuerySegmentResult segmentResult = QuerySegmentResult(
-            id: queryResponse.ids[i][j],
-            text: queryResponse.documents![i][j]!,
-            metadata: queryResponse.metadatas?[i][j]==null?{}:queryResponse.metadatas![i][j]!,
-            distance: queryResponse.distances![i][j]
-        );
-        segmentResultList.add(segmentResult);
+        for(int j=0; j< queryResponse.ids[i].length; j++) {
+          QuerySegmentResult segmentResult = QuerySegmentResult(
+              id: queryResponse.ids[i][j],
+              text: queryResponse.documents![i][j]!,
+              metadata: queryResponse.metadatas?[i][j]==null?{}:queryResponse.metadatas![i][j]!,
+              distance: queryResponse.distances![i][j]
+          );
+          segmentResultList.add(segmentResult);
+        }
+        segmentResultListList.add(segmentResultList);
       }
-      segmentResultListList.add(segmentResultList);
+    } on ChromaApiClientException catch(e) {
+      VectorDatabaseException vdbException = VectorDatabaseException(
+        code: e.code??500,
+        message: e.message + ": " + (e.body is String ? jsonDecode(e.body as String) : e.body.toString())
+      );
+      throw vdbException;
     }
     return segmentResultListList;
   }
 
   Future<List<MultiDocsQueryResult>> multiQuery(List<String> collectionNameList, String queryText, { int nResults = 2, bool removeDuplicates = true }) async {
-
     List<List<double>> queryEmbeddings = await embeddingFunction.generate([Embeddable.document(queryText)]);
     List<MultiDocsQueryResult> multiDocsQueryResultList = [];
     for(String collectionName in collectionNameList) {
-      Collection collection = await client.getCollection(name: collectionName);
-      QueryResponse queryResponse = await collection.query(queryEmbeddings: queryEmbeddings, nResults: nResults );
-      for(int i=0; i<queryResponse.ids[0].length; i++) {
-        QuerySegmentResult segmentResult = QuerySegmentResult(
-            id: queryResponse.ids[0][i],
-            text: queryResponse.documents![0][i]!,
-            metadata: queryResponse.metadatas?[0][i]==null?{}:queryResponse.metadatas![0][i]!,
-            distance: queryResponse.distances![0][i]
+      try {
+        Collection collection = await client.getCollection(
+            name: collectionName);
+        QueryResponse queryResponse = await collection.query(
+            queryEmbeddings: queryEmbeddings, nResults: nResults);
+        for (int i = 0; i < queryResponse.ids[0].length; i++) {
+          QuerySegmentResult segmentResult = QuerySegmentResult(
+              id: queryResponse.ids[0][i],
+              text: queryResponse.documents![0][i]!,
+              metadata: queryResponse.metadatas?[0][i] == null
+                  ? {}
+                  : queryResponse.metadatas![0][i]!,
+              distance: queryResponse.distances![0][i]
+          );
+          MultiDocsQueryResult multiDocsQueryResult = MultiDocsQueryResult(
+              docsId: collectionName, querySegmentResult: segmentResult);
+          multiDocsQueryResultList.add(multiDocsQueryResult);
+        }
+      } on ChromaApiClientException catch(e) {
+        VectorDatabaseException vdbException = VectorDatabaseException(
+            code: e.code??500,
+            message: e.message + ": " + (e.body is String ? jsonDecode(e.body as String) : e.body.toString())
         );
-        MultiDocsQueryResult multiDocsQueryResult = MultiDocsQueryResult(docsId: collectionName, querySegmentResult: segmentResult);
-        multiDocsQueryResultList.add(multiDocsQueryResult);
+        throw vdbException;
       }
     }
 
