@@ -224,31 +224,36 @@ Map<String, dynamic> _$QueryResultDtoToJson(QueryResultDto instance) =>
       'segmentResultList': instance.segmentResultList,
     };
 
-MultiDocsQueryRequestDto _$DocsQueryRequestDtoFromJson(Map<String, dynamic> json) =>
+MultiDocsQueryRequestDto _$MultiDocsQueryRequestDtoFromJson(
+        Map<String, dynamic> json) =>
     MultiDocsQueryRequestDto(
       docsIdList: (json['docsIdList'] as List<dynamic>)
           .map((e) => e as String)
           .toList(),
       queryText: json['queryText'] as String,
       nResults: (json['nResults'] as num?)?.toInt() ?? 2,
+      removeDuplicates: json['removeDuplicates'] as bool? ?? true,
     );
 
-Map<String, dynamic> _$DocsQueryRequestDtoToJson(
+Map<String, dynamic> _$MultiDocsQueryRequestDtoToJson(
         MultiDocsQueryRequestDto instance) =>
     <String, dynamic>{
       'docsIdList': instance.docsIdList,
       'queryText': instance.queryText,
       'nResults': instance.nResults,
+      'removeDuplicates': instance.removeDuplicates,
     };
 
-MultiDocsQueryResultDto _$DocsQueryResultDtoFromJson(Map<String, dynamic> json) =>
+MultiDocsQueryResultDto _$MultiDocsQueryResultDtoFromJson(
+        Map<String, dynamic> json) =>
     MultiDocsQueryResultDto(
       docsId: json['docsId'] as String,
       segmentResult: SegmentResultDto.fromJson(
           json['segmentResult'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$DocsQueryResultDtoToJson(MultiDocsQueryResultDto instance) =>
+Map<String, dynamic> _$MultiDocsQueryResultDtoToJson(
+        MultiDocsQueryResultDto instance) =>
     <String, dynamic>{
       'docsId': instance.docsId,
       'segmentResult': instance.segmentResult,

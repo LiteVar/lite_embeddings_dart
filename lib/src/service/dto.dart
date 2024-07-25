@@ -243,9 +243,9 @@ class MultiDocsQueryRequestDto {
 
   MultiDocsQueryRequestDto({required this.docsIdList, required this.queryText, this.nResults = 2, this.removeDuplicates = true});
 
-  factory MultiDocsQueryRequestDto.fromJson(Map<String, dynamic> json) => _$DocsQueryRequestDtoFromJson(json);
+  factory MultiDocsQueryRequestDto.fromJson(Map<String, dynamic> json) => _$MultiDocsQueryRequestDtoFromJson(json);
 
-  Map<String, dynamic> toJson() => _$DocsQueryRequestDtoToJson(this);
+  Map<String, dynamic> toJson() => _$MultiDocsQueryRequestDtoToJson(this);
 }
 
 @JsonSerializable()
@@ -254,9 +254,9 @@ class MultiDocsQueryResultDto extends DocsIdDto {
 
   MultiDocsQueryResultDto({required super.docsId, required this.segmentResult});
 
-  factory MultiDocsQueryResultDto.fromJson(Map<String, dynamic> json) => _$DocsQueryResultDtoFromJson(json);
+  factory MultiDocsQueryResultDto.fromJson(Map<String, dynamic> json) => _$MultiDocsQueryResultDtoFromJson(json);
 
-  Map<String, dynamic> toJson() => _$DocsQueryResultDtoToJson(this);
+  Map<String, dynamic> toJson() => _$MultiDocsQueryResultDtoToJson(this);
 
   factory MultiDocsQueryResultDto.fromModel(MultiDocsQueryResult multiDocsQueryResult) => MultiDocsQueryResultDto(
       docsId: multiDocsQueryResult.docsId,
