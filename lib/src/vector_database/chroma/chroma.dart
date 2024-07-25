@@ -189,9 +189,9 @@ class Chroma extends VectorDatabase {
       }
     }
 
-    Set<double> distanceSet = {};
     if(removeDuplicates) {
-      multiDocsQueryResultList.retainWhere((multiDocsQueryResult) => distanceSet.add(multiDocsQueryResult.querySegmentResult.distance));
+      Set<String> distanceSet = {};
+      multiDocsQueryResultList.retainWhere((multiDocsQueryResult) => distanceSet.add(multiDocsQueryResult.querySegmentResult.text));
     }
 
     multiDocsQueryResultList.sort((a, b) => a.querySegmentResult.distance.compareTo(b.querySegmentResult.distance));
