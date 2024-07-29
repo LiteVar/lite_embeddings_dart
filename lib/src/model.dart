@@ -15,6 +15,13 @@ class TokenUsage {
   TokenUsage({required this.promptToken, required this.totalToken});
 }
 
+class LLMSettings {
+  LLMConfig llmConfig;
+  Function(TokenUsage tokenUsage) listenToken;
+
+  LLMSettings({required this.llmConfig, required this.listenToken});
+}
+
 class CollectionInfo {
   String name;
   String docsName;
@@ -29,7 +36,7 @@ class Segment {
   Segment({required this.text, this.metadata = const {}});
 }
 
-class SegmentInfo extends Segment{
+class SegmentInfo extends Segment {
   String id;
 
   SegmentInfo({required this.id, required super.text, super.metadata = const {}});
@@ -47,9 +54,16 @@ class QuerySegmentResult extends SegmentInfo{
   QuerySegmentResult({required super.id, required super.text, super.metadata = const {}, required this.distance});
 }
 
-class MultiDocsQueryResult{
+class MultiDocsQuerySegment{
   String docsId;
   QuerySegmentResult querySegmentResult;
 
-  MultiDocsQueryResult({required this.docsId, required this.querySegmentResult});
+  MultiDocsQuerySegment({required this.docsId, required this.querySegmentResult});
+}
+
+class MultiDocsQueryResult{
+  List<MultiDocsQuerySegment> multiDocsQuerySegmentList;
+  TokenUsage tokenUsage;
+
+  MultiDocsQueryResult({required this.multiDocsQuerySegmentList, required this.tokenUsage});
 }

@@ -16,44 +16,57 @@ Future<void> main() async {
 
   print("fileName: $fileName, fileTextSize: ${fileText.length}, separator: $separator");
 
+  LLMConfigDto llmConfigDto = _buildLLMConfigDto();
+
   /// List All Docs
   List<DocsInfoDto> docsInfoDtoList = await embeddingsService.listDocs();
   print("docsNameDtoList: ${jsonEncode(docsInfoDtoList)}");
 
   /// Create New Docs
-  // CreateDocsTextDto createDocsTextDto = CreateDocsTextDto(docsName: fileName, text: fileText, separator: separator, metadata: {"vdb": "chroma", "embeddings_model": embeddingsModel});
-  // DocsInfoDto docsInfoDto = await embeddingsService.createDocsByText(createDocsTextDto);
-  // print("docsInfoDto: ${docsInfoDto.toJson()}");
+  CreateDocsTextRequestDto createDocsTextDto = CreateDocsTextRequestDto(docsName: fileName, text: fileText, separator: separator, metadata: {"vdb": "chroma", "embeddings_model": embeddingsModel}, llmConfig: llmConfigDto);
+  CreateDocsResultDto createDocsResultDto = await embeddingsService.createDocsByText(createDocsTextDto);
+  print("docsInfoDto: ${createDocsResultDto.toJson()}");
 
   /// List Segments
-  // String docsId = "<FROM DocsInfoDto>";
-  // DocsIdDto docsIdDto = DocsIdDto(docsId: docsId);
-  // DocumentInfoDto? documentInfoDto = await embeddingsService.listSegments(docsIdDto);
-  // print("documentInfoDto: ${jsonEncode(documentInfoDto?.toJson())}");
+  String docsId = "<FROM DocsInfoDto>";
+  DocsIdDto docsIdDto = DocsIdDto(docsId: docsId);
+  DocsFullInfoDto? documentInfoDto = await embeddingsService.listSegments(docsIdDto);
+  print("documentInfoDto: ${jsonEncode(documentInfoDto?.toJson())}");
 
   /// Query
-  // String questText = "Who is author?";
-  // QueryDto queryDto = QueryDto(docsId: docsId, queryText: questText, nResults: 3);
-  // QueryResultDto queryResultDto = await embeddingsService.query(queryDto);
-  // print("queryResultDto: ${jsonEncode(queryResultDto)}");
+  // String queryText = "Who is author?";
+  // QueryRequestDto queryRequestDto = QueryRequestDto(docsId: docsId, queryText: queryText, nResults: 3, llmConfig: llmConfigDto);
+  // QueryResultDto queryResultDto = await embeddingsService.query(queryRequestDto);
+  // print("queryResultDto: ${jsonEncode(queryResultDto.toJson())}");
+
+  /// MultiQuery: Multi Docs query
+  // String queryText = "Who is author?";
+  // List<String> docsIdList = ["xxx", "yyy", "zzz"];
+  // MultiDocsQueryRequestDto multiDocsQueryRequestDto = MultiDocsQueryRequestDto(docsIdList: docsIdList, queryText: queryText, llmConfig: llmConfigDto);
+  // MultiDocsQueryResultDto multiDocsQueryResultDto = await embeddingsService.multiDocsQuery(multiDocsQueryRequestDto);
+  // print("multiDocsQueryResultDto: ${jsonEncode(multiDocsQueryResultDto.toJson())}");
 
   /// Update Segment
-  // SegmentInfoDto segmentInfoDto = SegmentInfoDto(id: segmentId, text: newText, metadata: metadata);
-  // UpdateSegmentDto updateSegmentDto = UpdateSegmentDto(docsId: docsId, segment: segmentInfoDto);
-  // await embeddingsService.updateSegment(updateSegmentDto);
+  // SegmentInfoDto segmentInfoDto = SegmentInfoDto(segmentId: segmentId, text: newText, metadata: metadata);
+  // UpdateSegmentDto updateSegmentDto = UpdateSegmentDto(docsId: docsId, segment: segmentInfoDto, llmConfig: llmConfigDto);
+  // SegmentUpsertResultDto segmentUpdateResultDto = await embeddingsService.updateSegment(updateSegmentDto);
+  // print("segmentUpdateResultDto: ${jsonEncode(segmentUpdateResultDto.toJson())}");
 
   /// Insert Segment
   // SegmentDto segmentDto = SegmentDto(text: newText, metadata: metadata);
-  // InsertSegmentDto insertSegmentDto = InsertSegmentDto(docsId: docsId, segment: segmentDto, index: 2);
-  // await embeddingsService.insertSegment(insertSegmentDto);
+  // InsertSegmentDto insertSegmentDto = InsertSegmentDto(docsId: docsId, segment: segmentDto, index: 2, llmConfig: llmConfigDto);
+  // SegmentUpsertResultDto segmentInsertResultDto = await embeddingsService.insertSegment(insertSegmentDto);
+  // print("segmentInsertResultDto: ${jsonEncode(segmentInsertResultDto.toJson())}");
 
   /// Delete Segment
-  // DeleteSegmentDto deleteSegmentDto = DeleteSegmentDto(docsId: docsId, id: segmentId);
-  // await embeddingsService.deleteSegment(deleteSegmentDto);
+  // DeleteSegmentDto deleteSegmentDto = DeleteSegmentDto(docsId: docsId, segmentId: segmentId);
+  // SegmentIdDto segmentIdDto = await embeddingsService.deleteSegment(deleteSegmentDto);
+  // print("segmentIdDto: ${jsonEncode(segmentIdDto.toJson())}");
 
   /// Rename Docs
   // DocsInfoDto docsInfoDto = DocsInfoDto(docsId: docsId, docsName: newDocsName);
-  // DocsInfoDto docsInfoDtoResult = await embeddingsService.renameDocs(docsInfoDto);
+  // DocsInfoDto renameResult = await embeddingsService.renameDocs(docsInfoDto);
+  // print("renameResult: ${jsonEncode(renameResult.toJson())}");
 
   /// Delete Docs
   // DocsIdDto docsIdDto = DocsIdDto(docsId: docsId);
@@ -63,9 +76,7 @@ Future<void> main() async {
 }
 
 EmbeddingsService _buildService() {
-  LLMConfig llmConfig = _buildLLMConfigDto().toModel();
-  OpenAIEmbeddingFunction openAIEmbeddingFunction = OpenAIEmbeddingFunction(llmConfig: llmConfig, listen: listenTokenUsage);
-  EmbeddingsService embeddingsService = EmbeddingsService(Chroma(openAIEmbeddingFunction, baseUrl: "http://localhost:8000"));
+  EmbeddingsService embeddingsService = EmbeddingsService(Chroma(baseUrl: "http://localhost:8000"));
   return embeddingsService;
 }
 
@@ -85,10 +96,6 @@ Future<String> _buildDocsText(String docsName) async {
   File file = File(folder + Platform.pathSeparator + docsName);
   String docsString = await file.readAsString();
   return docsString;
-}
-
-void listenTokenUsage(TokenUsage tokenUsage) {
-  print(TokenUsageDto.fromModel(tokenUsage).toJson());
 }
 
 /// [DANGEROUS] RESET whole chroma database

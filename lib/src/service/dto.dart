@@ -3,25 +3,44 @@ import '../model.dart';
 
 part 'dto.g.dart';
 
+/// LLM
+
 @JsonSerializable()
 class LLMConfigDto {
   late String baseUrl;
   late String apiKey;
   late String model;
 
-  LLMConfigDto(
-      {required this.baseUrl,
-        required this.apiKey,
-        required this.model});
+  LLMConfigDto({
+    required this.baseUrl,
+    required this.apiKey,
+    required this.model
+  });
 
-  factory LLMConfigDto.fromJson(Map<String, dynamic> json) =>
-      _$LLMConfigDtoFromJson(json);
+  factory LLMConfigDto.fromJson(Map<String, dynamic> json) => _$LLMConfigDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$LLMConfigDtoToJson(this);
 
   LLMConfig toModel() => LLMConfig(baseUrl: baseUrl, apiKey: apiKey, model: model);
 
 }
+
+@JsonSerializable()
+class TokenUsageDto {
+  int promptToken;
+  int totalToken;
+
+  TokenUsageDto({required this.promptToken, required this.totalToken});
+
+  factory TokenUsageDto.fromJson(Map<String, dynamic> json) => _$TokenUsageDtoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$TokenUsageDtoToJson(this);
+
+  factory TokenUsageDto.fromModel(TokenUsage tokenUsage) => TokenUsageDto(promptToken: tokenUsage.promptToken, totalToken: tokenUsage.totalToken);
+
+}
+
+/// Docs
 
 @JsonSerializable()
 class DocsIdDto {
@@ -49,18 +68,58 @@ class DocsInfoDto extends DocsIdDto{
 }
 
 @JsonSerializable()
-class CreateDocsTextDto {
+class CreateDocsTextRequestDto {
   String docsName;
   String text;
   String separator;
   Map<String, dynamic> metadata;
+  LLMConfigDto llmConfig;
 
-  CreateDocsTextDto({required this.docsName, required this.text, required this.separator, this.metadata = const {}});
+  CreateDocsTextRequestDto({required this.docsName, required this.text, required this.separator, this.metadata = const {}, required this.llmConfig});
 
-  factory CreateDocsTextDto.fromJson(Map<String, dynamic> json) => _$CreateDocsTextDtoFromJson(json);
+  factory CreateDocsTextRequestDto.fromJson(Map<String, dynamic> json) => _$CreateDocsTextRequestDtoFromJson(json);
 
-  Map<String, dynamic> toJson() => _$CreateDocsTextDtoToJson(this);
+  Map<String, dynamic> toJson() => _$CreateDocsTextRequestDtoToJson(this);
 }
+
+@JsonSerializable()
+class CreateDocsRequestDto{
+  String docsName;
+  List<SegmentDto> segmentList;
+  LLMConfigDto llmConfig;
+
+  CreateDocsRequestDto({required this.docsName, required this.segmentList, required this.llmConfig});
+
+  factory CreateDocsRequestDto.fromJson(Map<String, dynamic> json) => _$CreateDocsRequestDtoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CreateDocsRequestDtoToJson(this);
+
+}
+
+@JsonSerializable()
+class CreateDocsResultDto extends DocsInfoDto{
+  TokenUsageDto tokenUsage;
+
+  CreateDocsResultDto({required super.docsId, required super.docsName, required this.tokenUsage});
+
+  factory CreateDocsResultDto.fromJson(Map<String, dynamic> json) => _$CreateDocsResultDtoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CreateDocsResultDtoToJson(this);
+}
+
+@JsonSerializable()
+class DocsFullInfoDto extends DocsInfoDto {
+  List<SegmentInfoDto> segmentInfoList;
+
+  DocsFullInfoDto({required super.docsId, required super.docsName, required this.segmentInfoList});
+
+  factory DocsFullInfoDto.fromJson(Map<String, dynamic> json) => _$DocsFullInfoDtoFromJson(json);
+
+  @override
+  Map<String, dynamic> toJson() => _$DocsFullInfoDtoToJson(this);
+}
+
+/// Segment
 
 @JsonSerializable()
 class SegmentIdDto {
@@ -71,6 +130,17 @@ class SegmentIdDto {
   factory SegmentIdDto.fromJson(Map<String, dynamic> json) => _$SegmentIdDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$SegmentIdDtoToJson(this);
+}
+
+@JsonSerializable()
+class SegmentUpsertResultDto extends SegmentIdDto {
+  TokenUsageDto tokenUsage;
+
+  SegmentUpsertResultDto({required super.segmentId, required this.tokenUsage});
+
+  factory SegmentUpsertResultDto.fromJson(Map<String, dynamic> json) => _$SegmentUpsertResultDtoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$SegmentUpsertResultDtoToJson(this);
 }
 
 @JsonSerializable()
@@ -91,8 +161,9 @@ class SegmentDto {
 class InsertSegmentDto extends DocsIdDto{
   SegmentDto segment;
   int? index;
+  LLMConfigDto llmConfig;
 
-  InsertSegmentDto({required super.docsId, required this.segment, this.index});
+  InsertSegmentDto({required super.docsId, required this.segment, this.index, required this.llmConfig});
 
   factory InsertSegmentDto.fromJson(Map<String, dynamic> json) => _$InsertSegmentDtoFromJson(json);
 
@@ -103,8 +174,9 @@ class InsertSegmentDto extends DocsIdDto{
 @JsonSerializable()
 class UpdateSegmentDto extends DocsIdDto{
   SegmentInfoDto segment;
+  LLMConfigDto llmConfig;
 
-  UpdateSegmentDto({required super.docsId, required this.segment});
+  UpdateSegmentDto({required super.docsId, required this.segment, required this.llmConfig});
 
   factory UpdateSegmentDto.fromJson(Map<String, dynamic> json) => _$UpdateSegmentDtoFromJson(json);
 
@@ -125,19 +197,6 @@ class DeleteSegmentDto extends DocsIdDto{
 }
 
 @JsonSerializable()
-class DocsDto{
-  String docsName;
-  List<SegmentDto> segmentList;
-
-  DocsDto({required this.docsName, required this.segmentList});
-
-  factory DocsDto.fromJson(Map<String, dynamic> json) => _$DocsDtoFromJson(json);
-
-  Map<String, dynamic> toJson() => _$DocsDtoToJson(this);
-
-}
-
-@JsonSerializable()
 class SegmentInfoDto extends SegmentDto{
   String segmentId;
 
@@ -155,59 +214,6 @@ class SegmentInfoDto extends SegmentDto{
 }
 
 @JsonSerializable()
-class DocsFullInfoDto extends DocsInfoDto {
-  List<SegmentInfoDto> segmentInfoList;
-
-  DocsFullInfoDto({required super.docsId, required super.docsName, required this.segmentInfoList});
-
-  factory DocsFullInfoDto.fromJson(Map<String, dynamic> json) => _$DocsFullInfoDtoFromJson(json);
-
-  @override
-  Map<String, dynamic> toJson() => _$DocsFullInfoDtoToJson(this);
-}
-
-@JsonSerializable()
-class TokenUsageDto {
-  int promptToken;
-  int totalToken;
-
-  TokenUsageDto({required this.promptToken, required this.totalToken});
-
-  factory TokenUsageDto.fromJson(Map<String, dynamic> json) => _$TokenUsageDtoFromJson(json);
-
-  Map<String, dynamic> toJson() => _$TokenUsageDtoToJson(this);
-
-  factory TokenUsageDto.fromModel(TokenUsage tokenUsage) => TokenUsageDto(promptToken: tokenUsage.promptToken, totalToken: tokenUsage.totalToken);
-
-}
-
-@JsonSerializable()
-class QueryDto extends DocsIdDto{
-  String queryText;
-  int nResults;
-
-  QueryDto({required super.docsId, required this.queryText, this.nResults = 2});
-
-  factory QueryDto.fromJson(Map<String, dynamic> json) => _$QueryDtoFromJson(json);
-
-  @override
-  Map<String, dynamic> toJson() => _$QueryDtoToJson(this);
-}
-
-@JsonSerializable()
-class BatchQueryDto extends DocsIdDto{
-  List<String> queryTextList;
-  int nResults;
-
-  BatchQueryDto({required super.docsId, required this.queryTextList, this.nResults = 2});
-
-  factory BatchQueryDto.fromJson(Map<String, dynamic> json) => _$BatchQueryDtoFromJson(json);
-
-  @override
-  Map<String, dynamic> toJson() => _$BatchQueryDtoToJson(this);
-}
-
-@JsonSerializable()
 class SegmentResultDto extends SegmentIdDto {
   String text;
   Map<String, dynamic>? metadata;
@@ -222,11 +228,42 @@ class SegmentResultDto extends SegmentIdDto {
   factory SegmentResultDto.fromModel(QuerySegmentResult segmentResult) => SegmentResultDto(segmentId: segmentResult.id, text: segmentResult.text, metadata: segmentResult.metadata, distance: segmentResult.distance);
 }
 
+/// Query
+
+@JsonSerializable()
+class QueryRequestDto extends DocsIdDto{
+  String queryText;
+  int nResults;
+  LLMConfigDto llmConfig;
+
+  QueryRequestDto({required super.docsId, required this.queryText, this.nResults = 2, required this.llmConfig});
+
+  factory QueryRequestDto.fromJson(Map<String, dynamic> json) => _$QueryRequestDtoFromJson(json);
+
+  @override
+  Map<String, dynamic> toJson() => _$QueryRequestDtoToJson(this);
+}
+
+@JsonSerializable()
+class BatchQueryRequestDto extends DocsIdDto{
+  List<String> queryTextList;
+  int nResults;
+  LLMConfigDto llmConfig;
+
+  BatchQueryRequestDto({required super.docsId, required this.queryTextList, this.nResults = 2, required this.llmConfig});
+
+  factory BatchQueryRequestDto.fromJson(Map<String, dynamic> json) => _$BatchQueryRequestDtoFromJson(json);
+
+  @override
+  Map<String, dynamic> toJson() => _$BatchQueryRequestDtoToJson(this);
+}
+
 @JsonSerializable()
 class QueryResultDto extends DocsIdDto {
   List<SegmentResultDto> segmentResultList;
+  TokenUsageDto tokenUsage;
 
-  QueryResultDto({required super.docsId, required this.segmentResultList});
+  QueryResultDto({required super.docsId, required this.segmentResultList, required this.tokenUsage});
 
   factory QueryResultDto.fromJson(Map<String, dynamic> json) => _$QueryResultDtoFromJson(json);
 
@@ -240,8 +277,9 @@ class MultiDocsQueryRequestDto {
   String queryText;
   int nResults;
   bool removeDuplicates;
+  LLMConfigDto llmConfig;
 
-  MultiDocsQueryRequestDto({required this.docsIdList, required this.queryText, this.nResults = 2, this.removeDuplicates = true});
+  MultiDocsQueryRequestDto({required this.docsIdList, required this.queryText, this.nResults = 2, this.removeDuplicates = true, required this.llmConfig});
 
   factory MultiDocsQueryRequestDto.fromJson(Map<String, dynamic> json) => _$MultiDocsQueryRequestDtoFromJson(json);
 
@@ -249,17 +287,33 @@ class MultiDocsQueryRequestDto {
 }
 
 @JsonSerializable()
-class MultiDocsQueryResultDto extends DocsIdDto {
+class MultiDocsQuerySegmentDto extends DocsIdDto {
   SegmentResultDto segmentResult;
 
-  MultiDocsQueryResultDto({required super.docsId, required this.segmentResult});
+  MultiDocsQuerySegmentDto({required super.docsId, required this.segmentResult});
+
+  factory MultiDocsQuerySegmentDto.fromJson(Map<String, dynamic> json) => _$MultiDocsQuerySegmentDtoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$MultiDocsQuerySegmentDtoToJson(this);
+
+  factory MultiDocsQuerySegmentDto.fromModel(MultiDocsQuerySegment multiDocsQueryResult) =>
+    MultiDocsQuerySegmentDto(docsId: multiDocsQueryResult.docsId, segmentResult: SegmentResultDto.fromModel(multiDocsQueryResult.querySegmentResult));
+}
+
+@JsonSerializable()
+class MultiDocsQueryResultDto {
+  List<MultiDocsQuerySegmentDto> segmentResultList;
+  TokenUsageDto tokenUsage;
+
+  MultiDocsQueryResultDto({ required this.segmentResultList, required this.tokenUsage});
 
   factory MultiDocsQueryResultDto.fromJson(Map<String, dynamic> json) => _$MultiDocsQueryResultDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$MultiDocsQueryResultDtoToJson(this);
 
   factory MultiDocsQueryResultDto.fromModel(MultiDocsQueryResult multiDocsQueryResult) => MultiDocsQueryResultDto(
-      docsId: multiDocsQueryResult.docsId,
-      segmentResult: SegmentResultDto.fromModel(multiDocsQueryResult.querySegmentResult)
+    segmentResultList: multiDocsQueryResult.multiDocsQuerySegmentList.map((segmentResult)=>MultiDocsQuerySegmentDto.fromModel(segmentResult)).toList(),// SegmentResultDto.fromModel(multiDocsQueryResult.querySegmentResult),
+    tokenUsage: TokenUsageDto.fromModel(multiDocsQueryResult.tokenUsage)
   );
+
 }

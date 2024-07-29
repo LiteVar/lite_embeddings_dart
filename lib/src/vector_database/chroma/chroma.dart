@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:chromadb/chromadb.dart';
+import 'package:lite_embeddings_dart/lite_embeddings.dart';
 import '../../service/exception.dart';
 import 'package:uuid/uuid.dart';
 import '../vector_database.dart';
@@ -13,9 +14,10 @@ class Chroma extends VectorDatabase {
 
   late ChromaClient client;
   late String baseUrl;
-  EmbeddingFunction embeddingFunction;
+  // EmbeddingFunction embeddingFunction;
 
-  Chroma(this.embeddingFunction, {this.baseUrl = "http://localhost:8000"});
+  // Chroma(this.embeddingFunction, {this.baseUrl = "http://localhost:8000"});
+  Chroma({this.baseUrl = "http://localhost:8000"});
   
   @override
   Future<void> connect() async => client = ChromaClient(baseUrl: baseUrl);
@@ -24,7 +26,7 @@ class Chroma extends VectorDatabase {
   Future<void> disconnect() async {}
 
   @override
-  Future<CollectionInfo> createCollection(String docsName, List<Segment> segmentList) async {
+  Future<CollectionInfo> createCollection(String docsName, List<Segment> segmentList, LLMSettings llmSettings) async {
     List<String> idList = [];
     List<String> documents = [];
     List<Map<String, dynamic>> metadataList = [];
@@ -41,6 +43,8 @@ class Chroma extends VectorDatabase {
     Map<String, dynamic> collectionMetadata = {};
     collectionMetadata[segmentIdOrderKey] = jsonEncode(idList);
     collectionMetadata[docsNameKey] = docsName;
+
+    EmbeddingFunction embeddingFunction = OpenAIEmbeddingFunction(llmConfig: llmSettings.llmConfig, listen: llmSettings.listenToken);
 
     try {
       Collection collection = await client.createCollection(
@@ -85,7 +89,7 @@ class Chroma extends VectorDatabase {
 
   @override
   Future<CollectionInfo> renameCollection(String collectionName, String newDocsName) async {
-    Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
+    Collection collection = await client.getCollection(name: collectionName);//, embeddingFunction: embeddingFunction);
     Map<String, dynamic> metadata = Map<String, dynamic>.from(collection.metadata!);
     metadata[docsNameKey] = newDocsName;
     await collection.modify(name: collectionName, metadata: metadata);
@@ -93,9 +97,10 @@ class Chroma extends VectorDatabase {
   }
 
   @override
-  Future<String> insertSegment(String collectionName, Segment segment, int? index) async {
+  Future<String> insertSegment(String collectionName, Segment segment, int? index, LLMSettings llmSettings) async {
     try {
       String segmentId = Uuid().v4();
+      EmbeddingFunction embeddingFunction = OpenAIEmbeddingFunction(llmConfig: llmSettings.llmConfig, listen: llmSettings.listenToken);
       Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
       collection.add(ids: [segmentId], documents: [segment.text], metadatas: [segment.metadata]);
 
@@ -122,7 +127,8 @@ class Chroma extends VectorDatabase {
   }
 
   @override
-  Future<void> updateSegment(String collectionName, SegmentInfo segmentInfo) async {
+  Future<void> updateSegment(String collectionName, SegmentInfo segmentInfo, LLMSettings llmSettings) async {
+    EmbeddingFunction embeddingFunction = OpenAIEmbeddingFunction(llmConfig: llmSettings.llmConfig, listen: llmSettings.listenToken);
     try {
       Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
       collection.update(
@@ -142,7 +148,7 @@ class Chroma extends VectorDatabase {
   @override
   Future<void> deleteSegment(String collectionName, String segmentId) async {
     try {
-      Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
+      Collection collection = await client.getCollection(name: collectionName);//, embeddingFunction: embeddingFunction);
       await collection.delete(ids: [segmentId]);
 
       Map<String, dynamic> metadata = Map<String, dynamic>.from(collection.metadata!);
@@ -162,7 +168,7 @@ class Chroma extends VectorDatabase {
   @override
   Future<CollectionResult?> listSegments(String collectionName) async {
     try {
-      Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
+      Collection collection = await client.getCollection(name: collectionName);//, embeddingFunction: embeddingFunction);
       String segmentIdOrderString = collection.metadata![segmentIdOrderKey];
       List<String> segmentIdOrder = List<String>.from(jsonDecode(segmentIdOrderString));
       GetResponse getResponse = await collection.get();
@@ -195,7 +201,8 @@ class Chroma extends VectorDatabase {
   }
 
   @override
-  Future<List<List<QuerySegmentResult>>> query(String collectionName, List<String> queryTexts, { int nResults = 2 }) async {
+  Future<List<List<QuerySegmentResult>>> query(String collectionName, List<String> queryTexts, LLMSettings llmSettings, { int nResults = 2 }) async {
+    EmbeddingFunction embeddingFunction = OpenAIEmbeddingFunction(llmConfig: llmSettings.llmConfig, listen: llmSettings.listenToken);
     List<List<QuerySegmentResult>> segmentResultListList = [];
     try {
       Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
@@ -225,17 +232,17 @@ class Chroma extends VectorDatabase {
     return segmentResultListList;
   }
 
-  Future<List<MultiDocsQueryResult>> multiQuery(List<String> collectionNameList, String queryText, { int nResults = 2, bool removeDuplicates = true }) async {
+  Future<List<MultiDocsQuerySegment>> multiQuery(List<String> collectionNameList, String queryText, LLMSettings llmSettings, { int nResults = 2, bool removeDuplicates = true}) async {
+    EmbeddingFunction embeddingFunction = OpenAIEmbeddingFunction(llmConfig: llmSettings.llmConfig, listen: llmSettings.listenToken);
     List<List<double>> queryEmbeddings = await embeddingFunction.generate([Embeddable.document(queryText)]);
-    List<MultiDocsQueryResult> multiDocsQueryResultList = [];
+    List<MultiDocsQuerySegment> multiDocsQuerySegmentList = [];
     for(String collectionName in collectionNameList) {
       try {
-        Collection collection = await client.getCollection(
-            name: collectionName);
+        Collection collection = await client.getCollection(name: collectionName);
         QueryResponse queryResponse = await collection.query(
             queryEmbeddings: queryEmbeddings, nResults: nResults);
         for (int i = 0; i < queryResponse.ids[0].length; i++) {
-          QuerySegmentResult segmentResult = QuerySegmentResult(
+          QuerySegmentResult querySegmentResult = QuerySegmentResult(
               id: queryResponse.ids[0][i],
               text: queryResponse.documents![0][i]!,
               metadata: queryResponse.metadatas?[0][i] == null
@@ -243,9 +250,8 @@ class Chroma extends VectorDatabase {
                   : queryResponse.metadatas![0][i]!,
               distance: queryResponse.distances![0][i]
           );
-          MultiDocsQueryResult multiDocsQueryResult = MultiDocsQueryResult(
-              docsId: collectionName, querySegmentResult: segmentResult);
-          multiDocsQueryResultList.add(multiDocsQueryResult);
+          MultiDocsQuerySegment multiDocsQuerySegment = MultiDocsQuerySegment(docsId: collectionName, querySegmentResult: querySegmentResult);
+          multiDocsQuerySegmentList.add(multiDocsQuerySegment);
         }
       } on ChromaApiClientException catch(e) {
         VectorDatabaseException vdbException = VectorDatabaseException(
@@ -258,15 +264,15 @@ class Chroma extends VectorDatabase {
 
     if(removeDuplicates) {
       Set<String> distanceSet = {};
-      multiDocsQueryResultList.retainWhere((multiDocsQueryResult) => distanceSet.add(multiDocsQueryResult.querySegmentResult.text));
+      multiDocsQuerySegmentList.retainWhere((multiDocsQuerySegment) => distanceSet.add(multiDocsQuerySegment.querySegmentResult.text));
     }
 
-    multiDocsQueryResultList.sort((a, b) => a.querySegmentResult.distance.compareTo(b.querySegmentResult.distance));
-    if(multiDocsQueryResultList.length > nResults) {
-      multiDocsQueryResultList.length = nResults;
+    multiDocsQuerySegmentList.sort((a, b) => a.querySegmentResult.distance.compareTo(b.querySegmentResult.distance));
+    if(multiDocsQuerySegmentList.length > nResults) {
+      multiDocsQuerySegmentList.length = nResults;
     }
 
-    return multiDocsQueryResultList;
+    return multiDocsQuerySegmentList;
   }
   
 }

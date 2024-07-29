@@ -19,6 +19,18 @@ Map<String, dynamic> _$LLMConfigDtoToJson(LLMConfigDto instance) =>
       'model': instance.model,
     };
 
+TokenUsageDto _$TokenUsageDtoFromJson(Map<String, dynamic> json) =>
+    TokenUsageDto(
+      promptToken: (json['promptToken'] as num).toInt(),
+      totalToken: (json['totalToken'] as num).toInt(),
+    );
+
+Map<String, dynamic> _$TokenUsageDtoToJson(TokenUsageDto instance) =>
+    <String, dynamic>{
+      'promptToken': instance.promptToken,
+      'totalToken': instance.totalToken,
+    };
+
 DocsIdDto _$DocsIdDtoFromJson(Map<String, dynamic> json) => DocsIdDto(
       docsId: json['docsId'] as String,
     );
@@ -38,104 +50,60 @@ Map<String, dynamic> _$DocsInfoDtoToJson(DocsInfoDto instance) =>
       'docsName': instance.docsName,
     };
 
-CreateDocsTextDto _$CreateDocsTextDtoFromJson(Map<String, dynamic> json) =>
-    CreateDocsTextDto(
+CreateDocsTextRequestDto _$CreateDocsTextRequestDtoFromJson(
+        Map<String, dynamic> json) =>
+    CreateDocsTextRequestDto(
       docsName: json['docsName'] as String,
       text: json['text'] as String,
       separator: json['separator'] as String,
       metadata: json['metadata'] as Map<String, dynamic>? ?? const {},
+      llmConfig:
+          LLMConfigDto.fromJson(json['llmConfig'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$CreateDocsTextDtoToJson(CreateDocsTextDto instance) =>
+Map<String, dynamic> _$CreateDocsTextRequestDtoToJson(
+        CreateDocsTextRequestDto instance) =>
     <String, dynamic>{
       'docsName': instance.docsName,
       'text': instance.text,
       'separator': instance.separator,
       'metadata': instance.metadata,
+      'llmConfig': instance.llmConfig,
     };
 
-SegmentIdDto _$SegmentIdDtoFromJson(Map<String, dynamic> json) => SegmentIdDto(
-      segmentId: json['segmentId'] as String,
-    );
-
-Map<String, dynamic> _$SegmentIdDtoToJson(SegmentIdDto instance) =>
-    <String, dynamic>{
-      'segmentId': instance.segmentId,
-    };
-
-SegmentDto _$SegmentDtoFromJson(Map<String, dynamic> json) => SegmentDto(
-      text: json['text'] as String,
-      metadata: json['metadata'] as Map<String, dynamic>,
-    );
-
-Map<String, dynamic> _$SegmentDtoToJson(SegmentDto instance) =>
-    <String, dynamic>{
-      'text': instance.text,
-      'metadata': instance.metadata,
-    };
-
-InsertSegmentDto _$InsertSegmentDtoFromJson(Map<String, dynamic> json) =>
-    InsertSegmentDto(
-      docsId: json['docsId'] as String,
-      segment: SegmentDto.fromJson(json['segment'] as Map<String, dynamic>),
-      index: (json['index'] as num?)?.toInt(),
-    );
-
-Map<String, dynamic> _$InsertSegmentDtoToJson(InsertSegmentDto instance) =>
-    <String, dynamic>{
-      'docsId': instance.docsId,
-      'segment': instance.segment,
-      'index': instance.index,
-    };
-
-UpdateSegmentDto _$UpdateSegmentDtoFromJson(Map<String, dynamic> json) =>
-    UpdateSegmentDto(
-      docsId: json['docsId'] as String,
-      segment: SegmentInfoDto.fromJson(json['segment'] as Map<String, dynamic>),
-    );
-
-Map<String, dynamic> _$UpdateSegmentDtoToJson(UpdateSegmentDto instance) =>
-    <String, dynamic>{
-      'docsId': instance.docsId,
-      'segment': instance.segment,
-    };
-
-DeleteSegmentDto _$DeleteSegmentDtoFromJson(Map<String, dynamic> json) =>
-    DeleteSegmentDto(
-      docsId: json['docsId'] as String,
-      segmentId: json['segmentId'] as String,
-    );
-
-Map<String, dynamic> _$DeleteSegmentDtoToJson(DeleteSegmentDto instance) =>
-    <String, dynamic>{
-      'docsId': instance.docsId,
-      'segmentId': instance.segmentId,
-    };
-
-DocsDto _$DocsDtoFromJson(Map<String, dynamic> json) => DocsDto(
+CreateDocsRequestDto _$CreateDocsRequestDtoFromJson(
+        Map<String, dynamic> json) =>
+    CreateDocsRequestDto(
       docsName: json['docsName'] as String,
       segmentList: (json['segmentList'] as List<dynamic>)
           .map((e) => SegmentDto.fromJson(e as Map<String, dynamic>))
           .toList(),
+      llmConfig:
+          LLMConfigDto.fromJson(json['llmConfig'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$DocsDtoToJson(DocsDto instance) => <String, dynamic>{
+Map<String, dynamic> _$CreateDocsRequestDtoToJson(
+        CreateDocsRequestDto instance) =>
+    <String, dynamic>{
       'docsName': instance.docsName,
       'segmentList': instance.segmentList,
+      'llmConfig': instance.llmConfig,
     };
 
-SegmentInfoDto _$SegmentInfoDtoFromJson(Map<String, dynamic> json) =>
-    SegmentInfoDto(
-      segmentId: json['segmentId'] as String,
-      text: json['text'] as String,
-      metadata: json['metadata'] as Map<String, dynamic>,
+CreateDocsResultDto _$CreateDocsResultDtoFromJson(Map<String, dynamic> json) =>
+    CreateDocsResultDto(
+      docsId: json['docsId'] as String,
+      docsName: json['docsName'] as String,
+      tokenUsage:
+          TokenUsageDto.fromJson(json['tokenUsage'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$SegmentInfoDtoToJson(SegmentInfoDto instance) =>
+Map<String, dynamic> _$CreateDocsResultDtoToJson(
+        CreateDocsResultDto instance) =>
     <String, dynamic>{
-      'text': instance.text,
-      'metadata': instance.metadata,
-      'segmentId': instance.segmentId,
+      'docsId': instance.docsId,
+      'docsName': instance.docsName,
+      'tokenUsage': instance.tokenUsage,
     };
 
 DocsFullInfoDto _$DocsFullInfoDtoFromJson(Map<String, dynamic> json) =>
@@ -154,44 +122,97 @@ Map<String, dynamic> _$DocsFullInfoDtoToJson(DocsFullInfoDto instance) =>
       'segmentInfoList': instance.segmentInfoList,
     };
 
-TokenUsageDto _$TokenUsageDtoFromJson(Map<String, dynamic> json) =>
-    TokenUsageDto(
-      promptToken: (json['promptToken'] as num).toInt(),
-      totalToken: (json['totalToken'] as num).toInt(),
+SegmentIdDto _$SegmentIdDtoFromJson(Map<String, dynamic> json) => SegmentIdDto(
+      segmentId: json['segmentId'] as String,
     );
 
-Map<String, dynamic> _$TokenUsageDtoToJson(TokenUsageDto instance) =>
+Map<String, dynamic> _$SegmentIdDtoToJson(SegmentIdDto instance) =>
     <String, dynamic>{
-      'promptToken': instance.promptToken,
-      'totalToken': instance.totalToken,
+      'segmentId': instance.segmentId,
     };
 
-QueryDto _$QueryDtoFromJson(Map<String, dynamic> json) => QueryDto(
-      docsId: json['docsId'] as String,
-      queryText: json['queryText'] as String,
-      nResults: (json['nResults'] as num?)?.toInt() ?? 2,
+SegmentUpsertResultDto _$SegmentUpsertResultDtoFromJson(
+        Map<String, dynamic> json) =>
+    SegmentUpsertResultDto(
+      segmentId: json['segmentId'] as String,
+      tokenUsage:
+          TokenUsageDto.fromJson(json['tokenUsage'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$QueryDtoToJson(QueryDto instance) => <String, dynamic>{
-      'docsId': instance.docsId,
-      'queryText': instance.queryText,
-      'nResults': instance.nResults,
+Map<String, dynamic> _$SegmentUpsertResultDtoToJson(
+        SegmentUpsertResultDto instance) =>
+    <String, dynamic>{
+      'segmentId': instance.segmentId,
+      'tokenUsage': instance.tokenUsage,
     };
 
-BatchQueryDto _$BatchQueryDtoFromJson(Map<String, dynamic> json) =>
-    BatchQueryDto(
-      docsId: json['docsId'] as String,
-      queryTextList: (json['queryTextList'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList(),
-      nResults: (json['nResults'] as num?)?.toInt() ?? 2,
+SegmentDto _$SegmentDtoFromJson(Map<String, dynamic> json) => SegmentDto(
+      text: json['text'] as String,
+      metadata: json['metadata'] as Map<String, dynamic>,
     );
 
-Map<String, dynamic> _$BatchQueryDtoToJson(BatchQueryDto instance) =>
+Map<String, dynamic> _$SegmentDtoToJson(SegmentDto instance) =>
+    <String, dynamic>{
+      'text': instance.text,
+      'metadata': instance.metadata,
+    };
+
+InsertSegmentDto _$InsertSegmentDtoFromJson(Map<String, dynamic> json) =>
+    InsertSegmentDto(
+      docsId: json['docsId'] as String,
+      segment: SegmentDto.fromJson(json['segment'] as Map<String, dynamic>),
+      index: (json['index'] as num?)?.toInt(),
+      llmConfig:
+          LLMConfigDto.fromJson(json['llmConfig'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$InsertSegmentDtoToJson(InsertSegmentDto instance) =>
     <String, dynamic>{
       'docsId': instance.docsId,
-      'queryTextList': instance.queryTextList,
-      'nResults': instance.nResults,
+      'segment': instance.segment,
+      'index': instance.index,
+      'llmConfig': instance.llmConfig,
+    };
+
+UpdateSegmentDto _$UpdateSegmentDtoFromJson(Map<String, dynamic> json) =>
+    UpdateSegmentDto(
+      docsId: json['docsId'] as String,
+      segment: SegmentInfoDto.fromJson(json['segment'] as Map<String, dynamic>),
+      llmConfig:
+          LLMConfigDto.fromJson(json['llmConfig'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$UpdateSegmentDtoToJson(UpdateSegmentDto instance) =>
+    <String, dynamic>{
+      'docsId': instance.docsId,
+      'segment': instance.segment,
+      'llmConfig': instance.llmConfig,
+    };
+
+DeleteSegmentDto _$DeleteSegmentDtoFromJson(Map<String, dynamic> json) =>
+    DeleteSegmentDto(
+      docsId: json['docsId'] as String,
+      segmentId: json['segmentId'] as String,
+    );
+
+Map<String, dynamic> _$DeleteSegmentDtoToJson(DeleteSegmentDto instance) =>
+    <String, dynamic>{
+      'docsId': instance.docsId,
+      'segmentId': instance.segmentId,
+    };
+
+SegmentInfoDto _$SegmentInfoDtoFromJson(Map<String, dynamic> json) =>
+    SegmentInfoDto(
+      segmentId: json['segmentId'] as String,
+      text: json['text'] as String,
+      metadata: json['metadata'] as Map<String, dynamic>,
+    );
+
+Map<String, dynamic> _$SegmentInfoDtoToJson(SegmentInfoDto instance) =>
+    <String, dynamic>{
+      'text': instance.text,
+      'metadata': instance.metadata,
+      'segmentId': instance.segmentId,
     };
 
 SegmentResultDto _$SegmentResultDtoFromJson(Map<String, dynamic> json) =>
@@ -210,18 +231,59 @@ Map<String, dynamic> _$SegmentResultDtoToJson(SegmentResultDto instance) =>
       'distance': instance.distance,
     };
 
+QueryRequestDto _$QueryRequestDtoFromJson(Map<String, dynamic> json) =>
+    QueryRequestDto(
+      docsId: json['docsId'] as String,
+      queryText: json['queryText'] as String,
+      nResults: (json['nResults'] as num?)?.toInt() ?? 2,
+      llmConfig:
+          LLMConfigDto.fromJson(json['llmConfig'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$QueryRequestDtoToJson(QueryRequestDto instance) =>
+    <String, dynamic>{
+      'docsId': instance.docsId,
+      'queryText': instance.queryText,
+      'nResults': instance.nResults,
+      'llmConfig': instance.llmConfig,
+    };
+
+BatchQueryRequestDto _$BatchQueryRequestDtoFromJson(
+        Map<String, dynamic> json) =>
+    BatchQueryRequestDto(
+      docsId: json['docsId'] as String,
+      queryTextList: (json['queryTextList'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList(),
+      nResults: (json['nResults'] as num?)?.toInt() ?? 2,
+      llmConfig:
+          LLMConfigDto.fromJson(json['llmConfig'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$BatchQueryRequestDtoToJson(
+        BatchQueryRequestDto instance) =>
+    <String, dynamic>{
+      'docsId': instance.docsId,
+      'queryTextList': instance.queryTextList,
+      'nResults': instance.nResults,
+      'llmConfig': instance.llmConfig,
+    };
+
 QueryResultDto _$QueryResultDtoFromJson(Map<String, dynamic> json) =>
     QueryResultDto(
       docsId: json['docsId'] as String,
       segmentResultList: (json['segmentResultList'] as List<dynamic>)
           .map((e) => SegmentResultDto.fromJson(e as Map<String, dynamic>))
           .toList(),
+      tokenUsage:
+          TokenUsageDto.fromJson(json['tokenUsage'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$QueryResultDtoToJson(QueryResultDto instance) =>
     <String, dynamic>{
       'docsId': instance.docsId,
       'segmentResultList': instance.segmentResultList,
+      'tokenUsage': instance.tokenUsage,
     };
 
 MultiDocsQueryRequestDto _$MultiDocsQueryRequestDtoFromJson(
@@ -233,6 +295,8 @@ MultiDocsQueryRequestDto _$MultiDocsQueryRequestDtoFromJson(
       queryText: json['queryText'] as String,
       nResults: (json['nResults'] as num?)?.toInt() ?? 2,
       removeDuplicates: json['removeDuplicates'] as bool? ?? true,
+      llmConfig:
+          LLMConfigDto.fromJson(json['llmConfig'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$MultiDocsQueryRequestDtoToJson(
@@ -242,19 +306,38 @@ Map<String, dynamic> _$MultiDocsQueryRequestDtoToJson(
       'queryText': instance.queryText,
       'nResults': instance.nResults,
       'removeDuplicates': instance.removeDuplicates,
+      'llmConfig': instance.llmConfig,
     };
 
-MultiDocsQueryResultDto _$MultiDocsQueryResultDtoFromJson(
+MultiDocsQuerySegmentDto _$MultiDocsQuerySegmentDtoFromJson(
         Map<String, dynamic> json) =>
-    MultiDocsQueryResultDto(
+    MultiDocsQuerySegmentDto(
       docsId: json['docsId'] as String,
       segmentResult: SegmentResultDto.fromJson(
           json['segmentResult'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$MultiDocsQueryResultDtoToJson(
-        MultiDocsQueryResultDto instance) =>
+Map<String, dynamic> _$MultiDocsQuerySegmentDtoToJson(
+        MultiDocsQuerySegmentDto instance) =>
     <String, dynamic>{
       'docsId': instance.docsId,
       'segmentResult': instance.segmentResult,
+    };
+
+MultiDocsQueryResultDto _$MultiDocsQueryResultDtoFromJson(
+        Map<String, dynamic> json) =>
+    MultiDocsQueryResultDto(
+      segmentResultList: (json['segmentResultList'] as List<dynamic>)
+          .map((e) =>
+              MultiDocsQuerySegmentDto.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      tokenUsage:
+          TokenUsageDto.fromJson(json['tokenUsage'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$MultiDocsQueryResultDtoToJson(
+        MultiDocsQueryResultDto instance) =>
+    <String, dynamic>{
+      'segmentResultList': instance.segmentResultList,
+      'tokenUsage': instance.tokenUsage,
     };
