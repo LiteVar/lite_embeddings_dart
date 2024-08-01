@@ -2,10 +2,11 @@ class LLMConfig {
   String baseUrl;
   String apiKey;
   String model;
-  LLMConfig(
-      {required this.baseUrl,
-        required this.apiKey,
-        required this.model});
+  LLMConfig({
+    required this.baseUrl,
+    required this.apiKey,
+    required this.model
+  });
 }
 
 class TokenUsage {
@@ -31,7 +32,7 @@ class CollectionInfo {
 
 class Segment {
   String text;
-  Map<String, dynamic> metadata;
+  Map<String, dynamic>? metadata;
 
   Segment({required this.text, this.metadata = const {}});
 }

@@ -11,6 +11,9 @@ class Chroma extends VectorDatabase {
 
   static final String segmentIdOrderKey = "segmentIdOrder";
   static final String docsNameKey = "docsName";
+  static final String vdbKey = "vdb";
+  static final String vdbValue = "chroma";
+  static final String embeddingsModelKey = "embeddings_model";
 
   late ChromaClient client;
   late String baseUrl;
@@ -34,7 +37,12 @@ class Chroma extends VectorDatabase {
     for(int i=0; i< size; i++) {
       idList.add(uuid.v4());
       documents.add(segmentList[i].text);
-      metadataList.add(segmentList[i].metadata);
+
+      Map<String, dynamic> metadata = {vdbKey: vdbValue, embeddingsModelKey: llmSettings.llmConfig.model};
+      if(segmentList[i].metadata != null) {
+        metadata.addAll(segmentList[i].metadata!);
+      }
+      metadataList.add(metadata);
     }
 
     Map<String, dynamic> collectionMetadata = {};
@@ -86,7 +94,7 @@ class Chroma extends VectorDatabase {
 
   @override
   Future<CollectionInfo> renameCollection(String collectionName, String newDocsName) async {
-    Collection collection = await client.getCollection(name: collectionName);//, embeddingFunction: embeddingFunction);
+    Collection collection = await client.getCollection(name: collectionName);
     Map<String, dynamic> metadata = Map<String, dynamic>.from(collection.metadata!);
     metadata[docsNameKey] = newDocsName;
     await collection.modify(name: collectionName, metadata: metadata);
@@ -99,19 +107,25 @@ class Chroma extends VectorDatabase {
       String segmentId = Uuid().v4();
       EmbeddingFunction embeddingFunction = OpenAIEmbeddingFunction(llmConfig: llmSettings.llmConfig, listen: llmSettings.listenToken);
       Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
-      collection.add(ids: [segmentId], documents: [segment.text], metadatas: [segment.metadata]);
 
-      Map<String, dynamic> metadata = Map<String, dynamic>.from(collection.metadata!);
+      Map<String, dynamic> metadata = {vdbKey: vdbValue, embeddingsModelKey: llmSettings.llmConfig.model};
+      if(segment.metadata != null) {
+        metadata.addAll(metadata);
+      }
 
-      List<String> segmentIdOrder = (jsonDecode(metadata[segmentIdOrderKey])  as List<dynamic>).map((segmentId)=> (segmentId as String)).toList();
+      collection.add(ids: [segmentId], documents: [segment.text], metadatas: [metadata]);
+
+      Map<String, dynamic> docsMetadata = Map<String, dynamic>.from(collection.metadata!);
+
+      List<String> segmentIdOrder = (jsonDecode(docsMetadata[segmentIdOrderKey])  as List<dynamic>).map((segmentId)=> (segmentId as String)).toList();
       if(index == null || index >= segmentIdOrder.length) {
         segmentIdOrder.add(segmentId);
       } else {
         segmentIdOrder.insert(index, segmentId);
       }
 
-      metadata[segmentIdOrderKey] = jsonEncode(segmentIdOrder);
-      await collection.modify(name: collectionName, metadata: metadata);
+      docsMetadata[segmentIdOrderKey] = jsonEncode(segmentIdOrder);
+      await collection.modify(name: collectionName, metadata: docsMetadata);
 
       return segmentId;
     } on ChromaApiClientException catch(e) {
@@ -128,17 +142,40 @@ class Chroma extends VectorDatabase {
     EmbeddingFunction embeddingFunction = OpenAIEmbeddingFunction(llmConfig: llmSettings.llmConfig, listen: llmSettings.listenToken);
     try {
       Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
-      collection.update(
-        ids: [segmentInfo.id],
-        documents: [segmentInfo.text],
-        metadatas: [segmentInfo.metadata]
-      );
+
+      if(segmentInfo.metadata == null){
+        collection.update(
+            ids: [segmentInfo.id],
+            documents: [segmentInfo.text]
+        );
+      } else {
+        GetResponse getResponse = await collection.get(ids: [segmentInfo.id]);
+        Map<String, dynamic>? oldMetadata = getResponse.metadatas?[0];
+        Map<String, dynamic> metadata = _convertMetadata(oldMetadata, segmentInfo.metadata!);
+        if(metadata == {}) metadata = {vdbKey: vdbValue, embeddingsModelKey: llmSettings.llmConfig.model};
+        collection.update(
+            ids: [segmentInfo.id],
+            documents: [segmentInfo.text],
+            metadatas: [metadata]
+        );
+      }
     } on ChromaApiClientException catch(e) {
       VectorDatabaseException vdbException = VectorDatabaseException(
           code: e.code??500,
           message: e.message + ": " + (e.body is String ? (e.body as String) : e.body.toString())
       );
       throw vdbException;
+    }
+  }
+
+  Map<String, dynamic> _convertMetadata(Map<String, dynamic>? oldMetadata, Map<String, dynamic> addMetadata) {
+    if(addMetadata == {} || oldMetadata == null) {
+      return addMetadata;
+    } else {
+      Map<String, dynamic> metadata = {};
+      metadata.addAll(oldMetadata);
+      metadata.addAll(addMetadata);
+      return metadata;
     }
   }
 

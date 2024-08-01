@@ -72,10 +72,10 @@ class CreateDocsTextRequestDto {
   String docsName;
   String text;
   String separator;
-  Map<String, dynamic> metadata;
+  Map<String, dynamic>? metadata;
   LLMConfigDto llmConfig;
 
-  CreateDocsTextRequestDto({required this.docsName, required this.text, required this.separator, this.metadata = const {}, required this.llmConfig});
+  CreateDocsTextRequestDto({required this.docsName, required this.text, required this.separator, this.metadata , required this.llmConfig});
 
   factory CreateDocsTextRequestDto.fromJson(Map<String, dynamic> json) => _$CreateDocsTextRequestDtoFromJson(json);
 
@@ -146,9 +146,9 @@ class SegmentUpsertResultDto extends SegmentIdDto {
 @JsonSerializable()
 class SegmentDto {
   String text;
-  Map<String, dynamic> metadata;
+  Map<String, dynamic>? metadata;
 
-  SegmentDto({required this.text, required this.metadata});
+  SegmentDto({required this.text, this.metadata});
 
   factory SegmentDto.fromJson(Map<String, dynamic> json) => _$SegmentDtoFromJson(json);
 
