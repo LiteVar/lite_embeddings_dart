@@ -35,9 +35,8 @@ class EmbeddingsService {
 
     Completer<TokenUsage> completer = Completer<TokenUsage>();
     LLMSettings llmSettings = LLMSettings(llmConfig: docsDto.llmConfig.toModel(), listenToken: (TokenUsage tokenUsage) => completer.complete(tokenUsage));
-    TokenUsage tokenUsage = await completer.future;
-
     CollectionInfo collectionInfo = await _vdb.createCollection(docsDto.docsName, segmentList, llmSettings);
+    TokenUsage tokenUsage = await completer.future;
 
     CreateDocsResultDto createDocsResultDto = CreateDocsResultDto(docsId: collectionInfo.name, docsName: collectionInfo.docsName, tokenUsage: TokenUsageDto.fromModel(tokenUsage));
 
@@ -70,8 +69,8 @@ class EmbeddingsService {
   Future<SegmentUpsertResultDto> insertSegment(InsertSegmentDto insertSegmentDto) async {
     Completer<TokenUsage> completer = Completer<TokenUsage>();
     LLMSettings llmSettings = LLMSettings(llmConfig: insertSegmentDto.llmConfig.toModel(), listenToken: (TokenUsage tokenUsage) => completer.complete(tokenUsage));
-    TokenUsage tokenUsage = await completer.future;
     String segmentId = await _vdb.insertSegment(insertSegmentDto.docsId, insertSegmentDto.segment.toModel(), insertSegmentDto.index, llmSettings);
+    TokenUsage tokenUsage = await completer.future;
     SegmentUpsertResultDto segmentUpsertResultDto = SegmentUpsertResultDto(segmentId: segmentId, tokenUsage: TokenUsageDto.fromModel(tokenUsage));
     return segmentUpsertResultDto;
   }
@@ -79,8 +78,8 @@ class EmbeddingsService {
   Future<SegmentUpsertResultDto> updateSegment(UpdateSegmentDto updateSegmentDto) async {
     Completer<TokenUsage> completer = Completer<TokenUsage>();
     LLMSettings llmSettings = LLMSettings(llmConfig: updateSegmentDto.llmConfig.toModel(), listenToken: (TokenUsage tokenUsage) => completer.complete(tokenUsage));
-    TokenUsage tokenUsage = await completer.future;
     await _vdb.updateSegment(updateSegmentDto.docsId, updateSegmentDto.segment.toModel(), llmSettings);
+    TokenUsage tokenUsage = await completer.future;
     SegmentUpsertResultDto segmentUpsertResultDto = SegmentUpsertResultDto(segmentId: updateSegmentDto.segment.segmentId, tokenUsage: TokenUsageDto.fromModel(tokenUsage));
     return segmentUpsertResultDto;
   }
@@ -93,8 +92,8 @@ class EmbeddingsService {
   Future<QueryResultDto> query(QueryRequestDto queryRequestDto) async {
     Completer<TokenUsage> completer = Completer<TokenUsage>();
     LLMSettings llmSettings = LLMSettings(llmConfig: queryRequestDto.llmConfig.toModel(), listenToken: (TokenUsage tokenUsage) => completer.complete(tokenUsage));
-    TokenUsage tokenUsage = await completer.future;
     List<List<QuerySegmentResult>> segmentResultListList = await _vdb.query(queryRequestDto.docsId, [queryRequestDto.queryText], llmSettings, nResults: queryRequestDto.nResults);
+    TokenUsage tokenUsage = await completer.future;
     List<QuerySegmentResult> segmentResultList = segmentResultListList[0];
     List<SegmentResultDto> segmentResultDtoList = segmentResultList.map((segmentResult)=> SegmentResultDto.fromModel(segmentResult)).toList();
     QueryResultDto queryResultDto = QueryResultDto(docsId: queryRequestDto.docsId, segmentResultList: segmentResultDtoList, tokenUsage: TokenUsageDto.fromModel(tokenUsage));
@@ -104,8 +103,8 @@ class EmbeddingsService {
   Future<List<QueryResultDto>> batchQuery(BatchQueryRequestDto batchQueryRequestDto) async {
     Completer<TokenUsage> completer = Completer<TokenUsage>();
     LLMSettings llmSettings = LLMSettings(llmConfig: batchQueryRequestDto.llmConfig.toModel(), listenToken: (TokenUsage tokenUsage) => completer.complete(tokenUsage));
-    TokenUsage tokenUsage = await completer.future;
     List<List<QuerySegmentResult>> segmentResultListList = await _vdb.query(batchQueryRequestDto.docsId, batchQueryRequestDto.queryTextList, llmSettings, nResults: batchQueryRequestDto.nResults);
+    TokenUsage tokenUsage = await completer.future;
     List<QueryResultDto> queryResultDtoList = [];
     for(int i=0; i< segmentResultListList.length; i++) {
       List<QuerySegmentResult> segmentResultList = segmentResultListList[i];
@@ -119,7 +118,6 @@ class EmbeddingsService {
   Future<MultiDocsQueryResultDto> multiDocsQuery(MultiDocsQueryRequestDto multiDocsQueryRequestDto) async {
     Completer<TokenUsage> completer = Completer<TokenUsage>();
     LLMSettings llmSettings = LLMSettings(llmConfig: multiDocsQueryRequestDto.llmConfig.toModel(), listenToken: (TokenUsage tokenUsage) => completer.complete(tokenUsage));
-    TokenUsage tokenUsage = await completer.future;
     List<MultiDocsQuerySegment> multiDocsQueryResultList = await _vdb.multiQuery(
       multiDocsQueryRequestDto.docsIdList,
       multiDocsQueryRequestDto.queryText,
@@ -127,6 +125,7 @@ class EmbeddingsService {
       nResults: multiDocsQueryRequestDto.nResults,
       removeDuplicates: multiDocsQueryRequestDto.removeDuplicates
     );
+    TokenUsage tokenUsage = await completer.future;
     MultiDocsQueryResultDto multiDocsQueryResultDto = MultiDocsQueryResultDto(
         segmentResultList: multiDocsQueryResultList.map((multiDocsQuerySegment)=>MultiDocsQuerySegmentDto.fromModel(multiDocsQuerySegment)).toList(),
         tokenUsage: TokenUsageDto.fromModel(tokenUsage)
