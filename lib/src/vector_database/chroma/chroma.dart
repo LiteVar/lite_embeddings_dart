@@ -14,9 +14,6 @@ class Chroma extends VectorDatabase {
 
   late ChromaClient client;
   late String baseUrl;
-  // EmbeddingFunction embeddingFunction;
-
-  // Chroma(this.embeddingFunction, {this.baseUrl = "http://localhost:8000"});
   Chroma({this.baseUrl = "http://localhost:8000"});
   
   @override
@@ -60,7 +57,7 @@ class Chroma extends VectorDatabase {
     } on ChromaApiClientException catch(e) {
       VectorDatabaseException vdbException = VectorDatabaseException(
           code: e.code??500,
-          message: e.message + ": " + (e.body is String ? jsonDecode(e.body as String) : e.body.toString())
+          message: e.message + ": " + (e.body is String ? (e.body as String) : e.body.toString())
       );
       throw vdbException;
     }
@@ -75,7 +72,7 @@ class Chroma extends VectorDatabase {
     } on ChromaApiClientException catch(e) {
       VectorDatabaseException vdbException = VectorDatabaseException(
           code: e.code??500,
-          message: e.message + ": " + (e.body is String ? jsonDecode(e.body as String) : e.body.toString())
+          message: e.message + ": " + (e.body is String ? (e.body as String) : e.body.toString())
       );
       throw vdbException;
     }
@@ -120,7 +117,7 @@ class Chroma extends VectorDatabase {
     } on ChromaApiClientException catch(e) {
       VectorDatabaseException vdbException = VectorDatabaseException(
           code: e.code??500,
-          message: e.message + ": " + (e.body is String ? jsonDecode(e.body as String) : e.body.toString())
+          message: e.message + ": " + (e.body is String ? (e.body as String) : e.body.toString())
       );
       throw vdbException;
     }
@@ -139,7 +136,7 @@ class Chroma extends VectorDatabase {
     } on ChromaApiClientException catch(e) {
       VectorDatabaseException vdbException = VectorDatabaseException(
           code: e.code??500,
-          message: e.message + ": " + (e.body is String ? jsonDecode(e.body as String) : e.body.toString())
+          message: e.message + ": " + (e.body is String ? (e.body as String) : e.body.toString())
       );
       throw vdbException;
     }
@@ -159,7 +156,7 @@ class Chroma extends VectorDatabase {
     } on ChromaApiClientException catch(e) {
       VectorDatabaseException vdbException = VectorDatabaseException(
           code: e.code??500,
-          message: e.message + ": " + (e.body is String ? jsonDecode(e.body as String) : e.body.toString())
+          message: e.message + ": " + (e.body is String ? (e.body as String) : e.body.toString())
       );
       throw vdbException;
     }
@@ -194,7 +191,7 @@ class Chroma extends VectorDatabase {
     } on ChromaApiClientException catch(e) {
       VectorDatabaseException vdbException = VectorDatabaseException(
           code: e.code??500,
-          message: e.message + ": " + (e.body is String ? jsonDecode(e.body as String) : e.body.toString())
+          message: e.message + ": " + (e.body is String ? (e.body as String) : e.body.toString())
       );
       throw vdbException;
     }
@@ -225,7 +222,7 @@ class Chroma extends VectorDatabase {
     } on ChromaApiClientException catch(e) {
       VectorDatabaseException vdbException = VectorDatabaseException(
         code: e.code??500,
-        message: e.message + ": " + (e.body is String ? jsonDecode(e.body as String) : e.body.toString())
+        message: e.message + ": " + (e.body is String ? (e.body as String) : e.body.toString())
       );
       throw vdbException;
     }
@@ -256,7 +253,7 @@ class Chroma extends VectorDatabase {
       } on ChromaApiClientException catch(e) {
         VectorDatabaseException vdbException = VectorDatabaseException(
             code: e.code??500,
-            message: e.message + ": " + (e.body is String ? jsonDecode(e.body as String) : e.body.toString())
+            message: e.message + ": " + (e.body is String ? (e.body as String) : e.body.toString())
         );
         throw vdbException;
       }
