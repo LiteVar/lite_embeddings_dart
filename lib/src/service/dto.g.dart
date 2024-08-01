@@ -56,7 +56,7 @@ CreateDocsTextRequestDto _$CreateDocsTextRequestDtoFromJson(
       docsName: json['docsName'] as String,
       text: json['text'] as String,
       separator: json['separator'] as String,
-      metadata: json['metadata'] as Map<String, dynamic>? ?? const {},
+      metadata: json['metadata'] as Map<String, dynamic>?,
       llmConfig:
           LLMConfigDto.fromJson(json['llmConfig'] as Map<String, dynamic>),
     );
@@ -148,7 +148,7 @@ Map<String, dynamic> _$SegmentUpsertResultDtoToJson(
 
 SegmentDto _$SegmentDtoFromJson(Map<String, dynamic> json) => SegmentDto(
       text: json['text'] as String,
-      metadata: json['metadata'] as Map<String, dynamic>,
+      metadata: json['metadata'] as Map<String, dynamic>?,
     );
 
 Map<String, dynamic> _$SegmentDtoToJson(SegmentDto instance) =>
@@ -205,7 +205,7 @@ SegmentInfoDto _$SegmentInfoDtoFromJson(Map<String, dynamic> json) =>
     SegmentInfoDto(
       segmentId: json['segmentId'] as String,
       text: json['text'] as String,
-      metadata: json['metadata'] as Map<String, dynamic>,
+      metadata: json['metadata'] as Map<String, dynamic>?,
     );
 
 Map<String, dynamic> _$SegmentInfoDtoToJson(SegmentInfoDto instance) =>

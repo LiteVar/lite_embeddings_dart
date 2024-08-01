@@ -152,12 +152,23 @@ class Chroma extends VectorDatabase {
         GetResponse getResponse = await collection.get(ids: [segmentInfo.id]);
         Map<String, dynamic>? oldMetadata = getResponse.metadatas?[0];
         Map<String, dynamic> metadata = _convertMetadata(oldMetadata, segmentInfo.metadata!);
-        if(metadata == {}) metadata = {vdbKey: vdbValue, embeddingsModelKey: llmSettings.llmConfig.model};
-        collection.update(
-            ids: [segmentInfo.id],
-            documents: [segmentInfo.text],
-            metadatas: [metadata]
-        );
+        if(metadata.length == 0) metadata = {vdbKey: vdbValue, embeddingsModelKey: llmSettings.llmConfig.model};
+
+        if(getResponse.documents![0] == segmentInfo.text) {
+          List<double> embeddings = getResponse.embeddings![0];
+          collection.update(
+              ids: [segmentInfo.id],
+              embeddings: [embeddings],
+              metadatas: [metadata]
+          );
+          llmSettings.listenToken(TokenUsage(promptToken: 0, totalToken: 0));
+        } else {
+          collection.update(
+              ids: [segmentInfo.id],
+              documents: [segmentInfo.text],
+              metadatas: [metadata]
+          );
+        }
       }
     } on ChromaApiClientException catch(e) {
       VectorDatabaseException vdbException = VectorDatabaseException(
@@ -169,7 +180,7 @@ class Chroma extends VectorDatabase {
   }
 
   Map<String, dynamic> _convertMetadata(Map<String, dynamic>? oldMetadata, Map<String, dynamic> addMetadata) {
-    if(addMetadata == {} || oldMetadata == null) {
+    if(addMetadata.length == 0 || oldMetadata == null) {
       return addMetadata;
     } else {
       Map<String, dynamic> metadata = {};
