@@ -151,8 +151,8 @@ class Chroma extends VectorDatabase {
       Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
 
       GetResponse getResponse = await collection.get(ids: [segmentInfo.id]);
-      bool isTextUpdate = getResponse.documents![0] == segmentInfo.text;
-      bool isCustomMetadataNull = segmentInfo.metadata == null;
+      bool isTextUpdate = (getResponse.documents![0] != segmentInfo.text);
+      bool isCustomMetadataNull = (segmentInfo.metadata == null);
 
       if(isTextUpdate && isCustomMetadataNull) {
         collection.update(
@@ -161,7 +161,7 @@ class Chroma extends VectorDatabase {
         );
       } else if(isTextUpdate && !isCustomMetadataNull) {
         Map<String, dynamic> metadata = getResponse.metadatas![0]!;
-        metadata[customKey] = _updateCustomMetadataString(metadata[customKey]!, segmentInfo.metadata!);
+        metadata[customKey] = _updateCustomMetadataString(metadata[customKey]==null?"{}":metadata[customKey], segmentInfo.metadata!);
         collection.update(
             ids: [segmentInfo.id],
             documents: [segmentInfo.text],
@@ -169,7 +169,7 @@ class Chroma extends VectorDatabase {
         );
       } else if(!isTextUpdate && !isCustomMetadataNull) {
         Map<String, dynamic> metadata = getResponse.metadatas![0]!;
-        metadata[customKey] = _updateCustomMetadataString(metadata[customKey]!, segmentInfo.metadata!);
+        metadata[customKey] = _updateCustomMetadataString(metadata[customKey]==null?"{}":metadata[customKey], segmentInfo.metadata!);
         List<double> embeddings = getResponse.embeddings![0];
         collection.update(
             ids: [segmentInfo.id],
@@ -263,7 +263,7 @@ class Chroma extends VectorDatabase {
     Map<String, dynamic> flatMetadata = {};
     flatMetadata[vdbKey] = metadata[vdbKey];
     flatMetadata[embeddingsModelKey] = metadata[embeddingsModelKey];
-    String customMetadataString = metadata[customKey];
+    String customMetadataString = metadata[customKey]??"{}";
     Map<String, dynamic> customMetadata = jsonDecode(customMetadataString) as Map<String, dynamic>;
     flatMetadata.addAll(customMetadata);
     return flatMetadata;
