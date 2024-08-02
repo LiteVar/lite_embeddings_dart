@@ -14,6 +14,7 @@ class Chroma extends VectorDatabase {
   static final String vdbKey = "vdb";
   static final String vdbValue = "chroma";
   static final String embeddingsModelKey = "embeddings_model";
+  static final String customKey = "custom";
 
   late ChromaClient client;
   late String baseUrl;
@@ -38,11 +39,10 @@ class Chroma extends VectorDatabase {
       idList.add(uuid.v4());
       documents.add(segmentList[i].text);
 
-      Map<String, dynamic> metadata = {vdbKey: vdbValue, embeddingsModelKey: llmSettings.llmConfig.model};
-      if(segmentList[i].metadata != null) {
-        metadata.addAll(segmentList[i].metadata!);
-      }
-      metadataList.add(metadata);
+      Map<String, dynamic> systemMetadata = {vdbKey: vdbValue, embeddingsModelKey: llmSettings.llmConfig.model};
+      Map<String, dynamic> segmentMetadata = _convertToSegmentMetadata(systemMetadata, segmentList[i].metadata);
+
+      metadataList.add(segmentMetadata);
     }
 
     Map<String, dynamic> collectionMetadata = {};
@@ -71,6 +71,15 @@ class Chroma extends VectorDatabase {
     }
 
     return CollectionInfo(name: docsIdAsName, docsName: docsName);
+  }
+
+  Map<String, dynamic> _convertToSegmentMetadata(Map<String, dynamic> systemMetadata, Map<String, dynamic>? customMetadata) {
+    Map<String, dynamic> segmentMetadata = Map<String, dynamic>.from(systemMetadata);
+    if(customMetadata != null) {
+      String customMetadataString = jsonEncode(customMetadata);
+      segmentMetadata[customKey] = customMetadataString;
+    }
+    return segmentMetadata;
   }
 
   @override
@@ -108,12 +117,10 @@ class Chroma extends VectorDatabase {
       EmbeddingFunction embeddingFunction = OpenAIEmbeddingFunction(llmConfig: llmSettings.llmConfig, listen: llmSettings.listenToken);
       Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
 
-      Map<String, dynamic> metadata = {vdbKey: vdbValue, embeddingsModelKey: llmSettings.llmConfig.model};
-      if(segment.metadata != null) {
-        metadata.addAll(metadata);
-      }
+      Map<String, dynamic> systemMetadata = {vdbKey: vdbValue, embeddingsModelKey: llmSettings.llmConfig.model};
+      Map<String, dynamic> segmentMetadata = _convertToSegmentMetadata(systemMetadata, segment.metadata);
 
-      collection.add(ids: [segmentId], documents: [segment.text], metadatas: [metadata]);
+      collection.add(ids: [segmentId], documents: [segment.text], metadatas: [segmentMetadata]);
 
       Map<String, dynamic> docsMetadata = Map<String, dynamic>.from(collection.metadata!);
 
@@ -143,33 +150,35 @@ class Chroma extends VectorDatabase {
     try {
       Collection collection = await client.getCollection(name: collectionName, embeddingFunction: embeddingFunction);
 
-      if(segmentInfo.metadata == null){
+      GetResponse getResponse = await collection.get(ids: [segmentInfo.id]);
+      bool isTextUpdate = getResponse.documents![0] == segmentInfo.text;
+      bool isCustomMetadataNull = segmentInfo.metadata == null;
+
+      if(isTextUpdate && isCustomMetadataNull) {
         collection.update(
             ids: [segmentInfo.id],
             documents: [segmentInfo.text]
         );
-      } else {
-        GetResponse getResponse = await collection.get(ids: [segmentInfo.id]);
-        Map<String, dynamic>? oldMetadata = getResponse.metadatas?[0];
-        Map<String, dynamic> metadata = _convertMetadata(oldMetadata, segmentInfo.metadata!);
-        if(metadata.length == 0) metadata = {vdbKey: vdbValue, embeddingsModelKey: llmSettings.llmConfig.model};
+      } else if(isTextUpdate && !isCustomMetadataNull) {
+        Map<String, dynamic> metadata = getResponse.metadatas![0]!;
+        metadata[customKey] = _updateCustomMetadataString(metadata[customKey]!, segmentInfo.metadata!);
+        collection.update(
+            ids: [segmentInfo.id],
+            documents: [segmentInfo.text],
+            metadatas: [metadata]
+        );
+      } else if(!isTextUpdate && !isCustomMetadataNull) {
+        Map<String, dynamic> metadata = getResponse.metadatas![0]!;
+        metadata[customKey] = _updateCustomMetadataString(metadata[customKey]!, segmentInfo.metadata!);
+        List<double> embeddings = getResponse.embeddings![0];
+        collection.update(
+            ids: [segmentInfo.id],
+            embeddings: [embeddings],
+            metadatas: [metadata]
+        );
+        llmSettings.listenToken(TokenUsage(promptToken: 0, totalToken: 0));
+      } // if(!isTextUpdate && isCustomMetadataNull) DO NOTHING
 
-        if(getResponse.documents![0] == segmentInfo.text) {
-          List<double> embeddings = getResponse.embeddings![0];
-          collection.update(
-              ids: [segmentInfo.id],
-              embeddings: [embeddings],
-              metadatas: [metadata]
-          );
-          llmSettings.listenToken(TokenUsage(promptToken: 0, totalToken: 0));
-        } else {
-          collection.update(
-              ids: [segmentInfo.id],
-              documents: [segmentInfo.text],
-              metadatas: [metadata]
-          );
-        }
-      }
     } on ChromaApiClientException catch(e) {
       VectorDatabaseException vdbException = VectorDatabaseException(
           code: e.code??500,
@@ -179,14 +188,14 @@ class Chroma extends VectorDatabase {
     }
   }
 
-  Map<String, dynamic> _convertMetadata(Map<String, dynamic>? oldMetadata, Map<String, dynamic> addMetadata) {
-    if(addMetadata.length == 0 || oldMetadata == null) {
-      return addMetadata;
+  String _updateCustomMetadataString(String oldCustomMetadataString, Map<String, dynamic> addCustomMetadata) {
+    if(addCustomMetadata.isEmpty) {
+      return oldCustomMetadataString;
     } else {
-      Map<String, dynamic> metadata = {};
-      metadata.addAll(oldMetadata);
-      metadata.addAll(addMetadata);
-      return metadata;
+      Map<String, dynamic> oldCustomMetadata = jsonDecode(oldCustomMetadataString) as Map<String, dynamic>;
+      Map<String, dynamic> segmentMetadata = Map<String, dynamic>.from(oldCustomMetadata);
+      segmentMetadata.addAll(addCustomMetadata);
+      return jsonEncode(segmentMetadata);
     }
   }
 
@@ -231,7 +240,12 @@ class Chroma extends VectorDatabase {
       List<SegmentInfo> segmentList = [];
       for (String segmentId in segmentIdOrder) {
         int i = idMap[segmentId]!;  // fetch indexId quickly
-        SegmentInfo segment = SegmentInfo(id: getResponse.ids[i], text: getResponse.documents![i]!, metadata: (getResponse.metadatas?[i] == null)?{}:getResponse.metadatas![i]!);
+
+        SegmentInfo segment = SegmentInfo(
+          id: getResponse.ids[i],
+          text: getResponse.documents![i]!,
+          metadata: (getResponse.metadatas?[i] == null)?{}:_convertToFlatMetadata(getResponse.metadatas![i]!)
+        );
         segmentList.add(segment);
       }
 
@@ -243,6 +257,16 @@ class Chroma extends VectorDatabase {
       );
       throw vdbException;
     }
+  }
+
+  Map<String, dynamic> _convertToFlatMetadata(Map<String, dynamic> metadata) {
+    Map<String, dynamic> flatMetadata = {};
+    flatMetadata[vdbKey] = metadata[vdbKey];
+    flatMetadata[embeddingsModelKey] = metadata[embeddingsModelKey];
+    String customMetadataString = metadata[customKey];
+    Map<String, dynamic> customMetadata = jsonDecode(customMetadataString) as Map<String, dynamic>;
+    flatMetadata.addAll(customMetadata);
+    return flatMetadata;
   }
 
   @override
@@ -260,7 +284,7 @@ class Chroma extends VectorDatabase {
           QuerySegmentResult segmentResult = QuerySegmentResult(
               id: queryResponse.ids[i][j],
               text: queryResponse.documents![i][j]!,
-              metadata: queryResponse.metadatas?[i][j]==null?{}:queryResponse.metadatas![i][j]!,
+              metadata: queryResponse.metadatas?[i][j]==null?{}:_convertToFlatMetadata(queryResponse.metadatas![i][j]!),
               distance: queryResponse.distances![i][j]
           );
           segmentResultList.add(segmentResult);
@@ -292,7 +316,7 @@ class Chroma extends VectorDatabase {
               text: queryResponse.documents![0][i]!,
               metadata: queryResponse.metadatas?[0][i] == null
                   ? {}
-                  : queryResponse.metadatas![0][i]!,
+                  : _convertToFlatMetadata(queryResponse.metadatas![0][i]!),
               distance: queryResponse.distances![0][i]
           );
           MultiDocsQuerySegment multiDocsQuerySegment = MultiDocsQuerySegment(docsId: collectionName, querySegmentResult: querySegmentResult);
