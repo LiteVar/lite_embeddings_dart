@@ -190,7 +190,7 @@ class Chroma extends VectorDatabase {
 
   String _updateCustomMetadataString(String oldCustomMetadataString, Map<String, dynamic> addCustomMetadata) {
     if(addCustomMetadata.isEmpty) {
-      return oldCustomMetadataString;
+      return "{}";  //if addCustomMetadata == {}, remove customMetadata
     } else {
       Map<String, dynamic> oldCustomMetadata = jsonDecode(oldCustomMetadataString) as Map<String, dynamic>;
       Map<String, dynamic> segmentMetadata = Map<String, dynamic>.from(oldCustomMetadata);
