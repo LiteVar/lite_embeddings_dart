@@ -177,7 +177,10 @@ class Chroma extends VectorDatabase {
             metadatas: [metadata]
         );
         llmSettings.listenToken(TokenUsage(promptToken: 0, totalToken: 0));
-      } // if(!isTextUpdate && isCustomMetadataNull) DO NOTHING
+      } else {
+        llmSettings.listenToken(TokenUsage(promptToken: 0, totalToken: 0));
+        // if(!isTextUpdate && isCustomMetadataNull) DO NOTHING
+      }
 
     } on ChromaApiClientException catch(e) {
       VectorDatabaseException vdbException = VectorDatabaseException(
